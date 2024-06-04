@@ -21,7 +21,7 @@ public class CarMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        HorizontalInput = Input.GetAxis("Horizontal");
+        HorizontalInput = SimpleInput.GetAxis("Horizontal");
         ForwardInput = Input.GetAxis("Vertical");
 
         // Calculate the car's current speed
