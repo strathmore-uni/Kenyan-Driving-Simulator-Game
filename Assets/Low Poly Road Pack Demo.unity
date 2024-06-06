@@ -38,6 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 674241908}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -3480,6 +3481,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 494338, guid: ea8ec36c7f9b40f4faa40bf80afec5a3, type: 3}
   m_PrefabInstance: {fileID: 133836282}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &133930370 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1590566988275871281, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+  m_PrefabInstance: {fileID: 5103039418571206459}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &135690776
 PrefabInstance:
@@ -16586,6 +16592,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 42929286}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &686498001 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 4298496386007230615, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+  m_PrefabInstance: {fileID: 5103039418571206459}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &687123751
 GameObject:
   m_ObjectHideFlags: 0
@@ -26969,7 +26980,7 @@ Transform:
   m_GameObject: {fileID: 1157686200}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.29, y: 2.58, z: -6.7}
+  m_LocalPosition: {x: -0.29, y: 2.18, z: -4.69}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -31637,6 +31648,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 727419692}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &1367003413 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 8083670537106556971, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+  m_PrefabInstance: {fileID: 5103039418571206459}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1367513613
 GameObject:
   m_ObjectHideFlags: 0
@@ -35441,7 +35457,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1356176373}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3cd62094cd00402489f6e0a8f709b3ae, type: 3}
   m_Name: 
@@ -35459,7 +35475,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1356176373}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d4a252b853af8814fb1f9c05d3206fb0, type: 3}
   m_Name: 
@@ -35478,6 +35494,38 @@ MonoBehaviour:
 --- !u!4 &1507475744 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2792218741957914664, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+  m_PrefabInstance: {fileID: 5103039418571206459}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1507475745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1356176373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 991679cc1189f0543a995d7cc4969088, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FLWheelMesh: {fileID: 686498001}
+  FRWheelMesh: {fileID: 1367003413}
+  RLWheelMesh: {fileID: 133930370}
+  RRWheelMesh: {fileID: 2106718892}
+  FLWheelCollider: {fileID: 498431910}
+  FRWheelCollider: {fileID: 1356176380}
+  RLWheelCollider: {fileID: 1356176379}
+  RRWheelCollider: {fileID: 1356176378}
+  RB: {fileID: 1507475746}
+  FuelInput: 0
+  SteeringInput: 0
+  BrakeInput: 0
+  MotorPower: 500
+  SteeringPower: 10
+  BrakePower: 50000
+--- !u!54 &1507475746 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 7495443279060062592, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
   m_PrefabInstance: {fileID: 5103039418571206459}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1508644739
@@ -49908,6 +49956,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 494338, guid: ea8ec36c7f9b40f4faa40bf80afec5a3, type: 3}
   m_PrefabInstance: {fileID: 2103187759}
   m_PrefabAsset: {fileID: 0}
+--- !u!23 &2106718892 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7348393411021767341, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+  m_PrefabInstance: {fileID: 5103039418571206459}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2110285652
 GameObject:
   m_ObjectHideFlags: 0
@@ -50571,6 +50624,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3311311803080157842, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1507475741}
+    - targetCorrespondingSourceObject: {fileID: 3311311803080157842, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1507475745}
   m_SourcePrefab: {fileID: 100100000, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
