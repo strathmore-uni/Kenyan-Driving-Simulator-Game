@@ -42,11 +42,9 @@ public class CarManager : MonoBehaviour
 
         float MoveDir = Vector3.Dot(transform.forward, RB.velocity);
 
-        if(MoveDir<-.5f && FuelInput>0 ){
-            BrakeInput = Mathf.Abs(FuelInput);
-        } 
-        else if(MoveDir>.5f && FuelInput<0){
-            BrakeInput = Mathf.Abs(FuelInput);
+
+        if (Input.GetKey(KeyCode.Space)){
+            BrakeInput = 1f;
         }
         else{
             BrakeInput = 0f;
