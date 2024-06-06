@@ -6,7 +6,7 @@ public class CarManager : MonoBehaviour
 {
 
     //Wheel Mesh variables
-    public Transform FLWheelMesh, FRWheelMesh, RLWheelMesh, RRWheelMesh;
+    public MeshRenderer FLWheelMesh, FRWheelMesh, RLWheelMesh, RRWheelMesh;
 
     //Wheel Colliders variable
     public WheelCollider FLWheelCollider, FRWheelCollider, RLWheelCollider, RRWheelCollider;
@@ -33,6 +33,7 @@ public class CarManager : MonoBehaviour
         CheckInputs();
         ApplyMotor();
         ApplySteering();  
+        UpdateWheel();
     }
 
     void CheckInputs (){
@@ -50,6 +51,24 @@ public class CarManager : MonoBehaviour
     void ApplySteering(){
         FLWheelCollider.steerAngle = SteeringInput * SteeringPower;
         FRWheelCollider.steerAngle = SteeringInput * SteeringPower;
+    }
+
+    void UpdateWheel(){
+        UpdatePos(FLWheelCollider, FLWheelMesh);
+        UpdatePos(FRWheelCollider, FRWheelMesh);
+        UpdatePos(RLWheelCollider, RLWheelMesh);
+        UpdatePos(RRWheelCollider, RRWheelMesh);
+    }
+
+    void UpdatePos(WheelCollider Col, MeshRenderer Mesh){
+        Vector3 Pos;
+        // Pos = Col.transform.position;
+        Quaternion quar = Col.transform.rotation;
+
+        Col.GetWorldPose(out Pos, out quar);
+
+        Mesh.transform.position = Pos;
+        Mesh.transform.rotation = quar;
     }
 
 }
