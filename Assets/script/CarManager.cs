@@ -37,18 +37,19 @@ public class CarManager : MonoBehaviour
     }
 
     void CheckInputs (){
-        FuelInput = Input.GetAxis("Vertical");
-        SteeringInput = Input.GetAxis("Horizontal");
+
+        // FuelInput = Input.GetAxis("Vertical");
+        SteeringInput = SimpleInput.GetAxis("Horizontal");
 
         float MoveDir = Vector3.Dot(transform.forward, RB.velocity);
 
 
-        if (Input.GetKey(KeyCode.Space)){
-            BrakeInput = 1f;
-        }
-        else{
-            BrakeInput = 0f;
-        }
+        // if (Input.GetKey(KeyCode.Space)){
+        //     BrakeInput = 1f;
+        // }
+        // else{
+        //     BrakeInput = 0f;
+        // }
     }
 
     //Motor Method
@@ -69,6 +70,14 @@ public class CarManager : MonoBehaviour
         UpdatePos(FRWheelCollider, FRWheelMesh);
         UpdatePos(RLWheelCollider, RLWheelMesh);
         UpdatePos(RRWheelCollider, RRWheelMesh);
+    }
+
+    public void TakeInput(float input){
+        FuelInput = input;
+    }
+
+    public void TakeSteeringInput(float input){
+        BrakeInput = input;
     }
 
     //Wheel Position Update Method
