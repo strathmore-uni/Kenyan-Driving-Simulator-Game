@@ -15,11 +15,10 @@ public class CarManager : MonoBehaviour
     public Rigidbody RB;
 
     //Car control Inputs (Fuel, Steering)
-    public float FuelInput, SteeringInput;
+    public float FuelInput, SteeringInput, BrakeInput;
 
     //Motor Inputs
-    public float MotorPower;
-    public float SteeringPower;
+    public float MotorPower, SteeringPower, BrakePower;
 
     // Start is called before the first frame update
     void Start()
@@ -34,11 +33,24 @@ public class CarManager : MonoBehaviour
         ApplyMotor();
         ApplySteering();  
         UpdateWheel();
+        ApplyBrakes();
     }
 
     void CheckInputs (){
         FuelInput = Input.GetAxis("Vertical");
         SteeringInput = Input.GetAxis("Horizontal");
+
+        float MoveDir = Vector3.Dot(transform.forward, RB.velocity);
+
+        if(MoveDir<-.5f && FuelInput>0 ){
+            BrakeInput = Mathf.Abs(FuelInput);
+        } 
+        else if(MoveDir>.5f && FuelInput<0){
+            BrakeInput = Mathf.Abs(FuelInput);
+        }
+        else{
+            BrakeInput = 0f;
+        }
     }
 
     //Motor Method
@@ -53,6 +65,7 @@ public class CarManager : MonoBehaviour
         FRWheelCollider.steerAngle = SteeringInput * SteeringPower;
     }
 
+    //Wheel Update Method
     void UpdateWheel(){
         UpdatePos(FLWheelCollider, FLWheelMesh);
         UpdatePos(FRWheelCollider, FRWheelMesh);
@@ -60,6 +73,7 @@ public class CarManager : MonoBehaviour
         UpdatePos(RRWheelCollider, RRWheelMesh);
     }
 
+    //Wheel Position Update Method
     void UpdatePos(WheelCollider Col, MeshRenderer Mesh){
         Vector3 Pos;
         // Pos = Col.transform.position;
@@ -69,6 +83,13 @@ public class CarManager : MonoBehaviour
 
         Mesh.transform.position = Pos;
         Mesh.transform.rotation = quar;
+    }
+
+    void ApplyBrakes(){
+        FLWheelCollider.brakeTorque = BrakeInput * BrakePower*.7f;
+        FRWheelCollider.brakeTorque = BrakeInput * BrakePower*.7f;
+        RLWheelCollider.brakeTorque = BrakeInput * BrakePower*.3f;
+        RRWheelCollider.brakeTorque = BrakeInput * BrakePower*.3f;
     }
 
 }
