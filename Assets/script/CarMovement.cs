@@ -9,8 +9,12 @@ public class CarMovement : MonoBehaviour
     public float HorizontalInput;
     public float ForwardInput;
 
-
     private Rigidbody rb;
+
+
+//Gase and Brake input
+    public int GasInput;
+    public int BrakeInput;
 
     // Start is called before the first frame update
     void Start()
@@ -21,13 +25,31 @@ public class CarMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        HorizontalInput = Input.GetAxis("Horizontal");
+        HorizontalInput = SimpleInput.GetAxis("Horizontal");
         ForwardInput = Input.GetAxis("Vertical");
 
         // Calculate the car's current speed
         float currentSpeed = rb.velocity.magnitude;
 
 
+    }
+
+
+// Gas and brake methods
+    public void GasPressed(){
+        GasInput = 1;
+    }
+
+    public void GasReleased(){
+        GasInput = 0;
+    }
+
+    public void BrakePressed(){
+        BrakeInput = 1;
+    }
+
+    public void BrakeReleased(){
+        BrakeInput = 0;
     }
 
     void FixedUpdate()
