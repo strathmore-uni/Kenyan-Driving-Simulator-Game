@@ -37,19 +37,9 @@ public class CarManager : MonoBehaviour
     }
 
     void CheckInputs (){
-
-        // FuelInput = Input.GetAxis("Vertical");
         SteeringInput = SimpleInput.GetAxis("Horizontal");
 
         float MoveDir = Vector3.Dot(transform.forward, RB.velocity);
-
-
-        // if (Input.GetKey(KeyCode.Space)){
-        //     BrakeInput = 1f;
-        // }
-        // else{
-        //     BrakeInput = 0f;
-        // }
     }
 
     //Motor Method
@@ -83,7 +73,6 @@ public class CarManager : MonoBehaviour
     //Wheel Position Update Method
     void UpdatePos(WheelCollider Col, MeshRenderer Mesh){
         Vector3 Pos;
-        // Pos = Col.transform.position;
         Quaternion quar = Col.transform.rotation;
 
         Col.GetWorldPose(out Pos, out quar);
