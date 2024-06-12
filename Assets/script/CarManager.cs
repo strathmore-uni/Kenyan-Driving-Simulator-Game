@@ -11,6 +11,8 @@ public class CarManager : MonoBehaviour
     //Wheel Colliders variable
     public WheelCollider FLWheelCollider, FRWheelCollider, RLWheelCollider, RRWheelCollider;
 
+    public GameObject CenterOfMass;
+
     //Rigid body variable
     public Rigidbody RB;
 
@@ -23,7 +25,7 @@ public class CarManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        RB.centerOfMass = CenterOfMass.transform.localPosition;
     }
 
     // Update is called once per frame
