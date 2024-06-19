@@ -31853,26 +31853,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3311311803080157842, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
   m_PrefabInstance: {fileID: 5103039418571206459}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &1356176374 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 28636839611146925, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
-  m_PrefabInstance: {fileID: 5103039418571206459}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1356176375 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 9188640840458259854, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
-  m_PrefabInstance: {fileID: 5103039418571206459}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1356176376 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 948405438201742482, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
-  m_PrefabInstance: {fileID: 5103039418571206459}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1356176377 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3794951908810334882, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
-  m_PrefabInstance: {fileID: 5103039418571206459}
-  m_PrefabAsset: {fileID: 0}
 --- !u!146 &1356176378 stripped
 WheelCollider:
   m_CorrespondingSourceObject: {fileID: 1057494946909100755, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
@@ -36084,47 +36064,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 493506911}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1507475741
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1356176373}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3cd62094cd00402489f6e0a8f709b3ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 20
-  turnSpeed: 100
-  HorizontalInput: 0
-  ForwardInput: 0
-  GasInput: 0
-  BrakeInput: 0
---- !u!114 &1507475742
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1356176373}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4a252b853af8814fb1f9c05d3206fb0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  FrontLeftWheelCollider: {fileID: 498431910}
-  FrontRightWheel: {fileID: 1356176380}
-  RearLeftWheel: {fileID: 1356176379}
-  RearRightWheel: {fileID: 1356176378}
-  FrontLeftWheelTransform: {fileID: 1356176377}
-  FrontRightWheelTransform: {fileID: 1356176376}
-  RearLeftWheelTransform: {fileID: 1356176375}
-  RearRightWheelTransform: {fileID: 1356176374}
-  acceleration: 500
-  brakingForce: 300
-  maxTurnAngle: 30
 --- !u!4 &1507475744 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2792218741957914664, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
@@ -36158,6 +36097,12 @@ MonoBehaviour:
   MotorPower: 500
   SteeringPower: 10
   BrakePower: 50000
+  SteeringCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!54 &1507475746 stripped
 Rigidbody:
   m_CorrespondingSourceObject: {fileID: 7495443279060062592, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
@@ -51476,12 +51421,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 498431909}
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3311311803080157842, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1507475742}
-    - targetCorrespondingSourceObject: {fileID: 3311311803080157842, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1507475741}
     - targetCorrespondingSourceObject: {fileID: 3311311803080157842, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1507475745}

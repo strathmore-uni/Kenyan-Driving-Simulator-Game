@@ -22,6 +22,12 @@ public class CarManager : MonoBehaviour
     //Motor Inputs
     public float MotorPower, SteeringPower, BrakePower;
 
+    //Speed
+    private float speed;
+
+    //Steering curve
+    public AnimationCurve SteeringCurve;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -31,6 +37,7 @@ public class CarManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        speed = RB.velocity.magnitude;
         CheckInputs();
         ApplyMotor();
         ApplySteering();  
@@ -52,8 +59,9 @@ public class CarManager : MonoBehaviour
 
     //Steering Method
     void ApplySteering(){
-        FLWheelCollider.steerAngle = SteeringInput * SteeringPower;
-        FRWheelCollider.steerAngle = SteeringInput * SteeringPower;
+        float steeringAngle = SteeringCurve.Evaluate(speed) * SteeringInput;
+        FLWheelCollider.steerAngle = steeringAngle;
+        FRWheelCollider.steerAngle = steeringAngle;
     }
 
     //Wheel Update Method
