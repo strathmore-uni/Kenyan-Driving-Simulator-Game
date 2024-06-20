@@ -12466,13 +12466,13 @@ WheelCollider:
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.8
     m_AsymptoteValue: 0.5
-    m_Stiffness: 1
+    m_Stiffness: 2
   m_SidewaysFriction:
     m_ExtremumSlip: 0.2
     m_ExtremumValue: 1
     m_AsymptoteSlip: 0.5
     m_AsymptoteValue: 0.75
-    m_Stiffness: 1
+    m_Stiffness: 2
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -36099,10 +36099,33 @@ MonoBehaviour:
   BrakePower: 50000
   SteeringCurve:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 3
+      time: -11.757566
+      value: 61.56439
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 12.802855
+      value: 20.737564
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  FLWheelSmoke: {fileID: 0}
+  FRWheelSmoke: {fileID: 0}
+  RLWheelSmoke: {fileID: 0}
+  RRWheelSmoke: {fileID: 0}
+  SmokePrefab: {fileID: 0}
 --- !u!54 &1507475746 stripped
 Rigidbody:
   m_CorrespondingSourceObject: {fileID: 7495443279060062592, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
@@ -51312,11 +51335,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4795950753765878369, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_ForwardFriction.m_Stiffness
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4795950753765878369, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_SidewaysFriction.m_Stiffness
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4795950753765878369, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       propertyPath: m_ForwardFriction.m_ExtremumSlip
