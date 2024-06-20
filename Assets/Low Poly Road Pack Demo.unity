@@ -27539,6 +27539,7 @@ GameObject:
   - component: {fileID: 1157686202}
   - component: {fileID: 1157686201}
   - component: {fileID: 1157686204}
+  - component: {fileID: 1157686205}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -27613,12 +27614,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1157686200}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.2377606, y: 0.008264808, z: 0.0032762282, w: 0.9712831}
-  m_LocalPosition: {x: -0.36, y: 2.23, z: -5.35}
+  m_LocalRotation: {x: 0.12595917, y: -0.73777026, z: 0.16535933, w: 0.6422504}
+  m_LocalPosition: {x: 5.0906043, y: 2.1088076, z: -7.860525}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1507475744}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 27.504, y: 1.138, z: 0.665}
 --- !u!114 &1157686204
 MonoBehaviour:
@@ -27632,6 +27633,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80a8c781666ead94f978424454682589, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1157686205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1157686200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c649ce9445efbe44ebea301b3fddfc89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 1507475744}
+  playerRB: {fileID: 1507475746}
+  offset: {x: 0, y: 2, z: 0}
+  speed: 2
 --- !u!1001 &1157998778
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -36121,11 +36138,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  FLWheelSmoke: {fileID: 0}
-  FRWheelSmoke: {fileID: 0}
-  RLWheelSmoke: {fileID: 0}
-  RRWheelSmoke: {fileID: 0}
-  SmokePrefab: {fileID: 0}
 --- !u!54 &1507475746 stripped
 Rigidbody:
   m_CorrespondingSourceObject: {fileID: 7495443279060062592, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
@@ -51436,9 +51448,6 @@ PrefabInstance:
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 2792218741957914664, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1157686203}
-    - targetCorrespondingSourceObject: {fileID: 2792218741957914664, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 314935094}
     - targetCorrespondingSourceObject: {fileID: 1783117279532660138, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       insertIndex: -1
@@ -51452,6 +51461,7 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1157686203}
   - {fileID: 1325049224}
   - {fileID: 674241909}
   - {fileID: 5103039418571206459}
