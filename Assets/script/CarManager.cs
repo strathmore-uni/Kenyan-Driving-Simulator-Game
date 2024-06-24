@@ -26,13 +26,6 @@ public class CarManager : MonoBehaviour
     //Steering curve
     public AnimationCurve SteeringCurve;
 
-    //Wheel smoke particles
-    // public ParticleSystem FLWheelSmoke, FRWheelSmoke, RLWheelSmoke, RRWheelSmoke;
-
-    //smoke prefab
-    // public GameObject SmokePrefab;
-
-    // Start is called before the first frame update
     void Start()
     {
         RB.centerOfMass = CenterOfMass.transform.localPosition;
@@ -55,20 +48,6 @@ public class CarManager : MonoBehaviour
         float MoveDir = Vector3.Dot(transform.forward, RB.velocity);
     }
 
-/*
-    //Wheel Smoke Method
-    void WheelSmoke(ParticleSystem Smoke, WheelCollider Wheel){
-        if(Wheel.rpm < 0){
-            Smoke.transform.position = Wheel.transform.position - Wheel.transform.up * Wheel.radius;
-            Smoke.transform.rotation = Wheel.transform.rotation;
-            if(!Smoke.isPlaying){
-                Smoke.Play();
-            }
-        }else{
-            Smoke.Stop();
-        }
-    }
-*/
     //Motor Method
     void ApplyMotor(){
         RLWheelCollider.motorTorque = FuelInput * MotorPower;
