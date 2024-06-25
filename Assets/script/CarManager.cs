@@ -1,36 +1,33 @@
+using System.Xml;
 using UnityEngine;
 
 public class CarManager : MonoBehaviour
 {
-
-    //Wheel Mesh variables
+    // Wheel Mesh variables
     public MeshRenderer FLWheelMesh, FRWheelMesh, RLWheelMesh, RRWheelMesh;
 
-    //Wheel Colliders variable
+    // Wheel Colliders variable
     public WheelCollider FLWheelCollider, FRWheelCollider, RLWheelCollider, RRWheelCollider;
 
     public GameObject CenterOfMass;
 
-    //Rigid body variable
+    // Rigid body variable
     public Rigidbody RB;
 
-    //Car control Inputs (Fuel, Steering)
+    // Car control Inputs (Fuel, Steering)
     public float FuelInput, SteeringInput, BrakeInput;
 
-    //Motor Inputs
+    // Motor Inputs
     public float MotorPower, SteeringPower, BrakePower;
 
-    //Speed
+    // Speed
     private float speed;
+    public float maxSpeed;
+    private float speedClamped;
 
-    //Steering curve
+    // Steering curve
     public AnimationCurve SteeringCurve;
-
-    //Wheel smoke particles
-    // public ParticleSystem FLWheelSmoke, FRWheelSmoke, RLWheelSmoke, RRWheelSmoke;
-
-    //smoke prefab
-    // public GameObject SmokePrefab;
+    public int isEngineRunning;
 
     // Start is called before the first frame update
     void Start()
@@ -41,67 +38,100 @@ public class CarManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        speed = RB.velocity.magnitude;
+        speed = RRWheelCollider.rpm * RRWheelCollider.radius * 2f * Mathf.PI / 10f;
+        speedClamped = Mathf.Lerp(speedClamped, speed, Time.deltaTime);
         CheckInputs();
         ApplyMotor();
-        ApplySteering();  
+        ApplySteering();
         UpdateWheel();
         ApplyBrakes();
     }
 
-    void CheckInputs (){
+    void CheckInputs()
+    {
+        if (Mathf.Abs(FuelInput) > 0 && isEngineRunning == 0)
+        {
+            StartCoroutine(GetComponent<EngineAudio>().StartEngine());
+        }
+
         SteeringInput = SimpleInput.GetAxis("Horizontal");
 
         float MoveDir = Vector3.Dot(transform.forward, RB.velocity);
     }
 
-/*
-    //Wheel Smoke Method
-    void WheelSmoke(ParticleSystem Smoke, WheelCollider Wheel){
-        if(Wheel.rpm < 0){
-            Smoke.transform.position = Wheel.transform.position - Wheel.transform.up * Wheel.radius;
-            Smoke.transform.rotation = Wheel.transform.rotation;
-            if(!Smoke.isPlaying){
-                Smoke.Play();
-            }
-        }else{
-            Smoke.Stop();
+    // Motor Method
+    void ApplyMotor()
+    {
+        if (Mathf.Abs(speed) < maxSpeed)
+        {
+            RLWheelCollider.motorTorque = FuelInput * MotorPower;
+            RRWheelCollider.motorTorque = FuelInput * MotorPower;
+        }
+        else
+        {
+            RLWheelCollider.motorTorque = 0;
+            RRWheelCollider.motorTorque = 0;
         }
     }
-*/
-    //Motor Method
-    void ApplyMotor(){
-        RLWheelCollider.motorTorque = FuelInput * MotorPower;
-        RRWheelCollider.motorTorque = FuelInput * MotorPower;
-    }
 
+    // Steering Method
     //Steering Method
-    void ApplySteering(){
+    void ApplySteering()
+    {
         float steeringAngle = SteeringCurve.Evaluate(speed) * SteeringInput;
-        steeringAngle += Vector3.SignedAngle(transform.forward, RB.velocity, Vector3.up);
-        steeringAngle = Mathf.Clamp(steeringAngle, -90f, 90);
+
+        // Calculate the signed angle between the car's forward direction and its velocity
+        float velocityAngle = Vector3.SignedAngle(transform.forward, RB.velocity, Vector3.up);
+
+        // Adjust steering angle based on the vehicle's movement direction
+        if (Vector3.Dot(transform.forward, RB.velocity) < 0)
+        {
+            // If reversing, invert the steering input
+            steeringAngle = -steeringAngle;
+        }
+
+        // Smooth steering angle
+        float currentSteerAngleFL = FLWheelCollider.steerAngle;
+        float currentSteerAngleFR = FRWheelCollider.steerAngle;
+        steeringAngle = Mathf.Lerp(currentSteerAngleFL, steeringAngle, Time.deltaTime * 5f);
+
+        // Apply the smoothed and adjusted steering angle
         FLWheelCollider.steerAngle = steeringAngle;
         FRWheelCollider.steerAngle = steeringAngle;
+
+        // Debug logs for monitoring
+        Debug.Log($"Steering Input: {SteeringInput}, Speed: {speed}, Steering Angle: {steeringAngle}, Velocity Angle: {velocityAngle}");
     }
 
-    //Wheel Update Method
-    void UpdateWheel(){
+
+    // Wheel Update Method
+    void UpdateWheel()
+    {
         UpdatePos(FLWheelCollider, FLWheelMesh);
         UpdatePos(FRWheelCollider, FRWheelMesh);
         UpdatePos(RLWheelCollider, RLWheelMesh);
         UpdatePos(RRWheelCollider, RRWheelMesh);
     }
 
-    public void TakeInput(float input){
+    public float GetSpeedRatio()
+    {
+        var gas = Mathf.Clamp(Mathf.Abs(FuelInput), 0.5f, 1f);
+        return speedClamped * gas / maxSpeed;
+    }
+
+    public void TakeInput(float input)
+    {
         FuelInput = input;
     }
 
-    public void TakeSteeringInput(float input){
+    public void TakeSteeringInput(float input)
+    {
         BrakeInput = input;
     }
 
-    //Wheel Position Update Method
-    void UpdatePos(WheelCollider Col, MeshRenderer Mesh){
+    // Wheel Position Update Method
+    void UpdatePos(WheelCollider Col, MeshRenderer Mesh)
+    {
         Vector3 Pos;
         Quaternion quar = Col.transform.rotation;
 
@@ -111,11 +141,11 @@ public class CarManager : MonoBehaviour
         Mesh.transform.rotation = quar;
     }
 
-    void ApplyBrakes(){
-        FLWheelCollider.brakeTorque = BrakeInput * BrakePower*.7f;
-        FRWheelCollider.brakeTorque = BrakeInput * BrakePower*.7f;
-        RLWheelCollider.brakeTorque = BrakeInput * BrakePower*.3f;
-        RRWheelCollider.brakeTorque = BrakeInput * BrakePower*.3f;
+    void ApplyBrakes()
+    {
+        FLWheelCollider.brakeTorque = BrakeInput * BrakePower * .7f;
+        FRWheelCollider.brakeTorque = BrakeInput * BrakePower * .7f;
+        RLWheelCollider.brakeTorque = BrakeInput * BrakePower * .3f;
+        RRWheelCollider.brakeTorque = BrakeInput * BrakePower * .3f;
     }
-
 }
