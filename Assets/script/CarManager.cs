@@ -1,5 +1,16 @@
-using System.Xml;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using SimpleInputNamespace;
+using UnityEngine.EventSystems;
+public enum GearState
+{
+    Neutral,
+    Running,
+    CheckingChange,
+    Changing
+};
 
 public class CarManager : MonoBehaviour
 {
@@ -29,6 +40,27 @@ public class CarManager : MonoBehaviour
     public AnimationCurve SteeringCurve;
     public int isEngineRunning;
 
+    public float RPM;
+    public float redLine;
+    public float idleRPM;
+    public TMP_Text rpmText;
+    public TMP_Text gearText;
+    public Transform rpmNeedle;
+    public float minNeedleRotation;
+    public float maxNeedleRotation;
+    public int currentGear;
+
+    public float[] gearRatios;
+    public float differentialRatio;
+    private float currentTorque;
+    private float clutch;
+    private float wheelRPM;
+    public AnimationCurve hpToRPMCurve;
+    private GearState gearState;
+    public float increaseGearRPM;
+    public float decreaseGearRPM;
+    public float changeGearTime = 0.5f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -38,6 +70,9 @@ public class CarManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        rpmNeedle.rotation = Quaternion.Euler(0, 0, Mathf.Lerp(minNeedleRotation, maxNeedleRotation, RPM / (redLine * 1.1f)));
+        rpmText.text = RPM.ToString("0,000") + "rpm";
+        gearText.text = (gearState == GearState.Neutral) ? "N" : (currentGear + 1).ToString();
         speed = RRWheelCollider.rpm * RRWheelCollider.radius * 2f * Mathf.PI / 10f;
         speedClamped = Mathf.Lerp(speedClamped, speed, Time.deltaTime);
         CheckInputs();
@@ -57,21 +92,78 @@ public class CarManager : MonoBehaviour
         SteeringInput = SimpleInput.GetAxis("Horizontal");
 
         float MoveDir = Vector3.Dot(transform.forward, RB.velocity);
+
+        if (gearState != GearState.Changing)
+        {
+            if (gearState == GearState.Neutral)
+            {
+                clutch = 0;
+                if (Mathf.Abs(FuelInput) > 0) gearState = GearState.Running;
+            }
+            else
+            {
+                clutch = Input.acceleration.y > 0.5f ? 0 : Mathf.Lerp(clutch, 1, Time.deltaTime);
+            }
+        }
+        else
+        {
+            clutch = 0;
+        }
+        if (MoveDir < -0.5f && FuelInput > 0)
+        {
+            BrakeInput = Mathf.Abs(FuelInput);
+        }
+        else if (MoveDir > 0.5f && FuelInput < 0)
+        {
+            BrakeInput = Mathf.Abs(FuelInput);
+        }
+        else
+        {
+            BrakeInput = 0;
+        }
+
     }
 
     // Motor Method
     void ApplyMotor()
     {
-        if (Mathf.Abs(speed) < maxSpeed)
+        currentTorque = CalculateTorque();
+        RLWheelCollider.motorTorque = FuelInput * MotorPower;
+        RRWheelCollider.motorTorque = FuelInput * MotorPower;  
+    }
+
+    float CalculateTorque()
+    {
+        float torque = 0;
+        if (RPM < idleRPM + 200 && FuelInput == 0 && currentGear == 0)
         {
-            RLWheelCollider.motorTorque = FuelInput * MotorPower;
-            RRWheelCollider.motorTorque = FuelInput * MotorPower;
+            gearState = GearState.Neutral;
         }
-        else
+        if (gearState == GearState.Running && clutch > 0)
         {
-            RLWheelCollider.motorTorque = 0;
-            RRWheelCollider.motorTorque = 0;
+            if (RPM > increaseGearRPM)
+            {
+                StartCoroutine(ChangeGear(1));
+            }
+            else if (RPM < decreaseGearRPM)
+            {
+                StartCoroutine(ChangeGear(-1));
+            }
         }
+        if (isEngineRunning > 0)
+        {
+            if (clutch < 0.1f)
+            {
+                RPM = Mathf.Lerp(RPM, Mathf.Max(idleRPM, redLine * FuelInput) + Random.Range(-50, 50), Time.deltaTime);
+            }
+            else
+            {
+                wheelRPM = Mathf.Abs((RRWheelCollider.rpm + RLWheelCollider.rpm) / 2f) * gearRatios[currentGear] * differentialRatio;
+                RPM = Mathf.Lerp(RPM, Mathf.Max(idleRPM - 100, wheelRPM), Time.deltaTime * 3f);
+                torque = (hpToRPMCurve.Evaluate(RPM / redLine) * MotorPower / RPM) * gearRatios[currentGear] * differentialRatio * 5252f * clutch;
+            }
+        }
+        return torque;
     }
 
     // Steering Method
@@ -116,7 +208,7 @@ public class CarManager : MonoBehaviour
     public float GetSpeedRatio()
     {
         var gas = Mathf.Clamp(Mathf.Abs(FuelInput), 0.5f, 1f);
-        return speedClamped * gas / maxSpeed;
+        return RPM * gas / redLine;
     }
 
     public void TakeInput(float input)
@@ -139,6 +231,41 @@ public class CarManager : MonoBehaviour
 
         Mesh.transform.position = Pos;
         Mesh.transform.rotation = quar;
+    }
+
+    IEnumerator ChangeGear(int gearChange)
+    {
+        gearState = GearState.CheckingChange;
+        if (currentGear + gearChange >= 0)
+        {
+            if (gearChange > 0)
+            {
+                //increase the gear
+                yield return new WaitForSeconds(0.7f);
+                if (RPM < increaseGearRPM || currentGear >= gearRatios.Length - 1)
+                {
+                    gearState = GearState.Running;
+                    yield break;
+                }
+            }
+            if (gearChange < 0)
+            {
+                //decrease the gear
+                yield return new WaitForSeconds(0.1f);
+
+                if (RPM > decreaseGearRPM || currentGear <= 0)
+                {
+                    gearState = GearState.Running;
+                    yield break;
+                }
+            }
+            gearState = GearState.Changing;
+            yield return new WaitForSeconds(changeGearTime);
+            currentGear += gearChange;
+        }
+
+        if (gearState != GearState.Neutral)
+            gearState = GearState.Running;
     }
 
     void ApplyBrakes()
