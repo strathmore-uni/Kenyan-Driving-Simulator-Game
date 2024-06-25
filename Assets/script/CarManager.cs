@@ -76,13 +76,34 @@ public class CarManager : MonoBehaviour
     }
 
     //Steering Method
-    void ApplySteering(){
+    //Steering Method
+    void ApplySteering()
+    {
         float steeringAngle = SteeringCurve.Evaluate(speed) * SteeringInput;
-        steeringAngle += Vector3.SignedAngle(transform.forward, RB.velocity, Vector3.up);
-        steeringAngle = Mathf.Clamp(steeringAngle, -90f, 90);
+
+        // Calculate the signed angle between the car's forward direction and its velocity
+        float velocityAngle = Vector3.SignedAngle(transform.forward, RB.velocity, Vector3.up);
+
+        // Adjust steering angle based on the vehicle's movement direction
+        if (Vector3.Dot(transform.forward, RB.velocity) < 0)
+        {
+            // If reversing, invert the steering input
+            steeringAngle = -steeringAngle;
+        }
+
+        // Smooth steering angle
+        float currentSteerAngleFL = FLWheelCollider.steerAngle;
+        float currentSteerAngleFR = FRWheelCollider.steerAngle;
+        steeringAngle = Mathf.Lerp(currentSteerAngleFL, steeringAngle, Time.deltaTime * 5f);
+
+        // Apply the smoothed and adjusted steering angle
         FLWheelCollider.steerAngle = steeringAngle;
         FRWheelCollider.steerAngle = steeringAngle;
+
+        // Debug logs for monitoring
+        Debug.Log($"Steering Input: {SteeringInput}, Speed: {speed}, Steering Angle: {steeringAngle}, Velocity Angle: {velocityAngle}");
     }
+
 
     //Wheel Update Method
     void UpdateWheel(){
