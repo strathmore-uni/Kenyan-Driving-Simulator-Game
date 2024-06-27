@@ -231,6 +231,15 @@ void ApplySteering()
         // Calculate the signed angle between the car's forward direction and its velocity
         float velocityAngle = Vector3.SignedAngle(transform.forward, RB.velocity-transform.forward, Vector3.up);
 
+    //Steering Method
+    void ApplySteering()
+    {
+        float steeringAngle = SteeringCurve.Evaluate(speed) * SteeringInput;
+
+        // Calculate the signed angle between the car's forward direction and its velocity
+        float velocityAngle = Vector3.SignedAngle(transform.forward, RB.velocity, Vector3.up);
+
+
         // Adjust steering angle based on the vehicle's movement direction
         if (Vector3.Dot(transform.forward, RB.velocity) < 0)
         {
@@ -250,12 +259,10 @@ void ApplySteering()
         // Debug logs for monitoring
         Debug.Log($"Steering Input: {SteeringInput}, Speed: {speed}, Steering Angle: {steeringAngle}, Velocity Angle: {velocityAngle}");
     }
-
-
 */
-    // Wheel Update Method
-    void UpdateWheel()
-    {
+
+    //Wheel Update Method
+    void UpdateWheel(){
         UpdatePos(FLWheelCollider, FLWheelMesh);
         UpdatePos(FRWheelCollider, FRWheelMesh);
         UpdatePos(RLWheelCollider, RLWheelMesh);
