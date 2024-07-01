@@ -12823,8 +12823,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 18, y: -74}
-  m_SizeDelta: {x: 219.3677, y: 50}
+  m_AnchoredPosition: {x: 23, y: -74}
+  m_SizeDelta: {x: 248.21, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &496905548
 MonoBehaviour:
@@ -12846,7 +12846,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Throttle
+  m_text: gasPedal
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -24580,7 +24580,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 69.731, y: -44.3}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 294.6, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &757041687
 MonoBehaviour:
@@ -24602,7 +24602,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Brake
+  m_text: brakePedal
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -57575,6 +57575,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  slipAngle: 0
   isEngineRunning: 2
   RPM: 0
   redLine: 6500
@@ -57629,7 +57630,6 @@ MonoBehaviour:
   increaseGearRPM: 5500
   decreaseGearRPM: 3300
   changeGearTime: 0.5
-  slipAngle: 0
 --- !u!54 &1507475746 stripped
 Rigidbody:
   m_CorrespondingSourceObject: {fileID: 7495443279060062592, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
@@ -64815,7 +64815,7 @@ GameObject:
   - component: {fileID: 1800253339}
   - component: {fileID: 1800253340}
   m_Layer: 5
-  m_Name: StartindSound
+  m_Name: StartingSound
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

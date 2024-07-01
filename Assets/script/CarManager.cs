@@ -75,6 +75,7 @@ public class CarManager : MonoBehaviour
     public float decreaseGearRPM;
     public float changeGearTime = 0.5f;
 
+
     void Start()
     {
         RB.centerOfMass = CenterOfMass.transform.localPosition;
@@ -110,12 +111,22 @@ public class CarManager : MonoBehaviour
 
     void CheckInputs()
     {
+        FuelInput = SimpleInput.GetAxis("Vertical");
+        if (gasPedal.isPressed)
+        {
+            FuelInput += gasPedal.dampenPress;
+        }
+        if (brakePedal.isPressed)
+        {
+            FuelInput -= brakePedal.dampenPress;
+        }
         if (Mathf.Abs(FuelInput) > 0 && isEngineRunning == 0)
         {
             StartCoroutine(GetComponent<EngineAudio>().StartEngine());
         }
 
         SteeringInput = SimpleInput.GetAxis("Horizontal");
+        //SteeringInput = SimpleInput.GetAxis("SteeringWheel");
 
         float MoveDir = Vector3.Dot(transform.forward, RB.velocity);
 
