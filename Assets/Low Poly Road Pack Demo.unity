@@ -12823,8 +12823,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 18, y: -74}
-  m_SizeDelta: {x: 219.3677, y: 50}
+  m_AnchoredPosition: {x: 23, y: -74}
+  m_SizeDelta: {x: 248.21, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &496905548
 MonoBehaviour:
@@ -12846,7 +12846,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Throttle
+  m_text: gasPedal
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -24580,7 +24580,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 69.731, y: -44.3}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 294.6, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &757041687
 MonoBehaviour:
@@ -24602,7 +24602,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Brake
+  m_text: brakePedal
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -57500,30 +57500,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 493506911}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1507475741
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1356176373}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3cd62094cd00402489f6e0a8f709b3ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1507475742
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1356176373}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4a252b853af8814fb1f9c05d3206fb0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &1507475744 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2792218741957914664, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
@@ -57575,6 +57551,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  slipAngle: 0
   isEngineRunning: 2
   RPM: 0
   redLine: 6500
@@ -57597,24 +57574,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
-      time: 40.850033
-      value: 14.9792385
-      inSlope: -0.09422712
-      outSlope: -0.09422712
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.24444443
-      outWeight: 1
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
       time: 1.0334659
       value: 0.008550605
       inSlope: 0.014498505
@@ -57623,13 +57582,30 @@ MonoBehaviour:
       weightedMode: 0
       inWeight: 1
       outWeight: 0
+    - serializedVersion: 3
+      time: 11.932422
+      value: 4.019312
+      inSlope: 0.72059983
+      outSlope: 0.72059983
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.18368633
+      outWeight: 1
+    - serializedVersion: 3
+      time: 40.850033
+      value: 14.9792385
+      inSlope: -0.07636749
+      outSlope: -0.07636749
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.4972162
+      outWeight: 1
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
   increaseGearRPM: 5500
   decreaseGearRPM: 3300
   changeGearTime: 0.5
-  slipAngle: 0
 --- !u!54 &1507475746 stripped
 Rigidbody:
   m_CorrespondingSourceObject: {fileID: 7495443279060062592, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
@@ -64815,7 +64791,7 @@ GameObject:
   - component: {fileID: 1800253339}
   - component: {fileID: 1800253340}
   m_Layer: 5
-  m_Name: StartindSound
+  m_Name: StartingSound
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -73413,12 +73389,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1140872691}
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3311311803080157842, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1507475742}
-    - targetCorrespondingSourceObject: {fileID: 3311311803080157842, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1507475741}
     - targetCorrespondingSourceObject: {fileID: 3311311803080157842, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1507475745}
