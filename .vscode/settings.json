@@ -51,5 +51,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Kenyan Driving Simulator.sln"
+    "dotnet.defaultSolution": "Kenyan Driving Simulator.sln",
+    "dotnet.preferCSharpExtension": true
 }
