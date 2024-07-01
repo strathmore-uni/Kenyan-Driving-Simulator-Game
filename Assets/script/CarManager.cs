@@ -218,6 +218,10 @@ public class CarManager : MonoBehaviour
             // If reversing, invert the steering input
             steeringAngle = -steeringAngle;
         }
+        
+        // Add a damping factor to the steering angle
+        float dampingFactor = 0.1f; // Adjust this value to change the damping effect
+        steeringAngle *= (1 - dampingFactor);
 
         // Smooth steering angle
         float currentSteerAngleFL = FLWheelCollider.steerAngle;
