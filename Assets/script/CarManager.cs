@@ -75,6 +75,8 @@ public class CarManager : MonoBehaviour
     public float decreaseGearRPM;
     public float changeGearTime = 0.5f;
 
+    public float speedKMH;
+
 
     void Start()
     {
@@ -97,10 +99,14 @@ public class CarManager : MonoBehaviour
     void Update()
     {
         rpmNeedle.rotation = Quaternion.Euler(0, 0, Mathf.Lerp(minNeedleRotation, maxNeedleRotation, RPM / (redLine * 1.1f)));
-        rpmText.text = RPM.ToString("0,000") + "rpm";
+        
+        // Update UI elements
+        rpmText.text = speedKMH.ToString("0.0") + " km/h";
         gearText.text = (gearState == GearState.Neutral) ? "N" : (currentGear + 1).ToString();
-        speed = RRWheelCollider.rpm * RRWheelCollider.radius * 2f * Mathf.PI / 10f;
-        speedClamped = Mathf.Lerp(speedClamped, speed, Time.deltaTime);
+        speedKMH = RB.velocity.magnitude *3.6f;
+        // speed = RRWheelCollider.rpm * RRWheelCollider.radius * 2f * Mathf.PI / 10f;
+        // speed *= 3.6f; // Convert speed from m/s to km/h
+        speedClamped = Mathf.Lerp(speedClamped, speedKMH, Time.deltaTime);
         CheckInputs();
         ApplyMotor();
         ApplySteering();
@@ -220,7 +226,7 @@ public class CarManager : MonoBehaviour
         }
         
         // Add a damping factor to the steering angle
-        float dampingFactor = 0.1f; // Adjust this value to change the damping effect
+        float dampingFactor = 0.15f; // Adjust this value to change the damping effect
         steeringAngle *= (1 - dampingFactor);
 
         // Smooth steering angle
