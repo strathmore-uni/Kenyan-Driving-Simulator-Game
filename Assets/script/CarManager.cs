@@ -42,6 +42,9 @@ public class CarManager : MonoBehaviour
 
     // Steering curve
     public AnimationCurve SteeringCurve;
+
+    //Steering sensitivity
+    public float steeringSensitivity = 0.5f;
     
     //Slip angle for braking  
     public float slipAngle;
@@ -86,8 +89,6 @@ public class CarManager : MonoBehaviour
         rpmText.text = speedKMH.ToString("0.0") + " km/h";
         gearText.text = (gearState == GearState.Neutral) ? "N" : (currentGear + 1).ToString();
         speedKMH = RB.velocity.magnitude *3.6f;
-        // speed = RRWheelCollider.rpm * RRWheelCollider.radius * 2f * Mathf.PI / 10f;
-        // speed *= 3.6f; // Convert speed from m/s to km/h
         speedClamped = Mathf.Lerp(speedClamped, speedKMH, Time.deltaTime);
         CheckInputs();
         ApplyMotor();
@@ -114,6 +115,9 @@ public class CarManager : MonoBehaviour
 
         SteeringInput = SimpleInput.GetAxis("Horizontal");
         //SteeringInput = SimpleInput.GetAxis("SteeringWheel");
+
+        // Apply the steering sensitivity factor
+        SteeringInput *= steeringSensitivity;
 
         float MoveDir = Vector3.Dot(transform.forward, RB.velocity);
 
@@ -204,10 +208,6 @@ public class CarManager : MonoBehaviour
             // If reversing, invert the steering input
             steeringAngle = -steeringAngle;
         }
-        
-        // Add a damping factor to the steering angle
-        float dampingFactor = 0.15f; // Adjust this value to change the damping effect
-        steeringAngle *= (1 - dampingFactor);
 
         // Smooth steering angle
         float currentSteerAngleFL = FLWheelCollider.steerAngle;
