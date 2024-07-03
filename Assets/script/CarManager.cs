@@ -42,15 +42,12 @@ public class CarManager : MonoBehaviour
 
     // Steering curve
     public AnimationCurve SteeringCurve;
+
+    //Steering sensitivity
+    public float steeringSensitivity = 0.5f;
     
     //Slip angle for braking  
     public float slipAngle;
-
-    //Wheel Particles
-    // public WheelParticles wheelParticles;
-
-    //Smoke prefab
-    // public GameObject SmokePrefab;
     
     public int isEngineRunning;
 
@@ -81,20 +78,8 @@ public class CarManager : MonoBehaviour
     void Start()
     {
         RB.centerOfMass = CenterOfMass.transform.localPosition;
-        // InstantiateSmoke();
     }
 
-
-/*
-    //Smoke instance method
-    void InstantiateSmoke(){
-        wheelParticles.FLWheelParticles = Instantiate(SmokePrefab, FLWheelCollider.transform.position-Vector3.up*FLWheelCollider.radius, Quaternion.identity, FLWheelCollider.transform).GetComponent<ParticleSystem>();
-        wheelParticles.FRWheelParticles = Instantiate(SmokePrefab, FRWheelCollider.transform.position-Vector3.up*FRWheelCollider.radius, Quaternion.identity, FRWheelCollider.transform).GetComponent<ParticleSystem>();
-        wheelParticles.RLWheelParticles = Instantiate(SmokePrefab, RLWheelCollider.transform.position-Vector3.up*RLWheelCollider.radius, Quaternion.identity, RLWheelMesh.transform).GetComponent<ParticleSystem>();
-        wheelParticles.RRWheelParticles = Instantiate(SmokePrefab, RRWheelCollider.transform.position-Vector3.up*RRWheelCollider.radius, Quaternion.identity, RRWheelCollider.transform).GetComponent<ParticleSystem>();
-    }
-
-*/
     // Update is called once per frame
     void Update()
     {
@@ -104,15 +89,12 @@ public class CarManager : MonoBehaviour
         rpmText.text = speedKMH.ToString("0.0") + " km/h";
         gearText.text = (gearState == GearState.Neutral) ? "N" : (currentGear + 1).ToString();
         speedKMH = RB.velocity.magnitude *3.6f;
-        // speed = RRWheelCollider.rpm * RRWheelCollider.radius * 2f * Mathf.PI / 10f;
-        // speed *= 3.6f; // Convert speed from m/s to km/h
         speedClamped = Mathf.Lerp(speedClamped, speedKMH, Time.deltaTime);
         CheckInputs();
         ApplyMotor();
         ApplySteering();
         UpdateWheel();
         ApplyBrakes();
-        // CheckParticles();
     }
 
     void CheckInputs()
@@ -133,6 +115,9 @@ public class CarManager : MonoBehaviour
 
         SteeringInput = SimpleInput.GetAxis("Horizontal");
         //SteeringInput = SimpleInput.GetAxis("SteeringWheel");
+
+        // Apply the steering sensitivity factor
+        SteeringInput *= steeringSensitivity;
 
         float MoveDir = Vector3.Dot(transform.forward, RB.velocity);
 
@@ -209,7 +194,6 @@ public class CarManager : MonoBehaviour
         return torque;
     }
 
-    // Steering Method
     //Steering Method
     void ApplySteering()
     {
@@ -217,49 +201,6 @@ public class CarManager : MonoBehaviour
 
         // Calculate the signed angle between the car's forward direction and its velocity
         float velocityAngle = Vector3.SignedAngle(transform.forward, RB.velocity, Vector3.up);
-
-        // Adjust steering angle based on the vehicle's movement direction
-        if (Vector3.Dot(transform.forward, RB.velocity) < 0)
-        {
-            // If reversing, invert the steering input
-            steeringAngle = -steeringAngle;
-        }
-        
-        // Add a damping factor to the steering angle
-        float dampingFactor = 0.15f; // Adjust this value to change the damping effect
-        steeringAngle *= (1 - dampingFactor);
-
-        // Smooth steering angle
-        float currentSteerAngleFL = FLWheelCollider.steerAngle;
-        float currentSteerAngleFR = FRWheelCollider.steerAngle;
-        steeringAngle = Mathf.Lerp(currentSteerAngleFL, steeringAngle, Time.deltaTime * 5f);
-
-        // Apply the smoothed and adjusted steering angle
-        FLWheelCollider.steerAngle = steeringAngle;
-        FRWheelCollider.steerAngle = steeringAngle;
-
-        // Debug logs for monitoring
-        Debug.Log($"Steering Input: {SteeringInput}, Speed: {speed}, Steering Angle: {steeringAngle}, Velocity Angle: {velocityAngle}");
-    }
-
-
-/* 
-
-void ApplySteering()
-    {
-        float steeringAngle = SteeringCurve.Evaluate(speed) * SteeringInput;
-
-        // Calculate the signed angle between the car's forward direction and its velocity
-        float velocityAngle = Vector3.SignedAngle(transform.forward, RB.velocity-transform.forward, Vector3.up);
-
-    //Steering Method
-    void ApplySteering()
-    {
-        float steeringAngle = SteeringCurve.Evaluate(speed) * SteeringInput;
-
-        // Calculate the signed angle between the car's forward direction and its velocity
-        float velocityAngle = Vector3.SignedAngle(transform.forward, RB.velocity, Vector3.up);
-
 
         // Adjust steering angle based on the vehicle's movement direction
         if (Vector3.Dot(transform.forward, RB.velocity) < 0)
@@ -280,10 +221,10 @@ void ApplySteering()
         // Debug logs for monitoring
         Debug.Log($"Steering Input: {SteeringInput}, Speed: {speed}, Steering Angle: {steeringAngle}, Velocity Angle: {velocityAngle}");
     }
-*/
 
-    //Wheel Update Method
-    void UpdateWheel(){
+    // Wheel Update Method
+    void UpdateWheel()
+    {
         UpdatePos(FLWheelCollider, FLWheelMesh);
         UpdatePos(FRWheelCollider, FRWheelMesh);
         UpdatePos(RLWheelCollider, RLWheelMesh);
@@ -361,44 +302,4 @@ void ApplySteering()
         RRWheelCollider.brakeTorque = BrakeInput * BrakePower * .3f;
     }
 
-/*
-    //Smoke when slipping
-    void CheckParticles(){
-        WheelHit [] wheelHits = new WheelHit[4];
-        FLWheelCollider.GetGroundHit(out wheelHits[0]);
-        FRWheelCollider.GetGroundHit(out wheelHits[1]);
-        RLWheelCollider.GetGroundHit(out wheelHits[2]);
-        RRWheelCollider.GetGroundHit(out wheelHits[3]);
-        
-        float slipAllowed = 0.1f;
-
-        if (Mathf.Abs(wheelHits[0].sidewaysSlip)+Mathf.Abs(wheelHits[0].forwardSlip)>slipAllowed){
-            wheelParticles.FLWheelParticles.Play();
-        }else{
-            wheelParticles.FLWheelParticles.Stop();
-        }
-        if (Mathf.Abs(wheelHits[1].sidewaysSlip)+Mathf.Abs(wheelHits[1].forwardSlip)>slipAllowed){
-            wheelParticles.FRWheelParticles.Play();
-        }else{
-            wheelParticles.FRWheelParticles.Stop();
-        }
-        if (Mathf.Abs(wheelHits[2].sidewaysSlip)+Mathf.Abs(wheelHits[2].forwardSlip)>slipAllowed){
-            wheelParticles.RLWheelParticles.Play();
-        }else{
-            wheelParticles.RLWheelParticles.Stop();
-        }
-        if (Mathf.Abs(wheelHits[3].sidewaysSlip)+Mathf.Abs(wheelHits[3].forwardSlip)>slipAllowed){
-            wheelParticles.RRWheelParticles.Play();
-        }else{
-            wheelParticles.RRWheelParticles.Stop();
-        }
-    }
-
-    //Wheel Particles Class
-    [System .Serializable]
-    public class WheelParticles{
-        public ParticleSystem FLWheelParticles, FRWheelParticles, RLWheelParticles, RRWheelParticles;
-    }
-
-    */
 }
