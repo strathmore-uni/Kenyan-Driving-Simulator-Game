@@ -83,7 +83,9 @@ public class CarManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        rpmNeedle.rotation = Quaternion.Euler(0, 0, Mathf.Lerp(minNeedleRotation, maxNeedleRotation, RPM / (redLine * 1.1f)));
+        float speedRatio = speedKMH / (maxSpeed * 1.1f);
+        float needleRotation = Mathf.Lerp(minNeedleRotation, maxNeedleRotation, speedRatio);
+        rpmNeedle.rotation = Quaternion.Euler(0, 0, needleRotation);
         
         // Update UI elements
         rpmText.text = speedKMH.ToString("0.0") + " km/h";
