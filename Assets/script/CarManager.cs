@@ -9,7 +9,8 @@ public enum GearState
     Neutral,
     Running,
     CheckingChange,
-    Changing
+    Changing, 
+    Reverse
 };
 
 public class CarManager : MonoBehaviour
