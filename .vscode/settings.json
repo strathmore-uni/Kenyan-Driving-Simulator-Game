@@ -51,6 +51,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Kenyan Driving Simulator.sln",
+    "dotnet.defaultSolution": "Kenyan-Driving-Simulator-Game.sln",
     "dotnet.preferCSharpExtension": true
 }
