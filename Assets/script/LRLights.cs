@@ -33,4 +33,10 @@ public class LRLights : MonoBehaviour
             }
         }
     }
+
+    public void ResetTimer(){
+        countDown = baseDuration;
+        isOn = true;
+        lrLight.SetActive(true);
+    }
 }

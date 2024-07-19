@@ -24,34 +24,59 @@ public class IndicatorLightsController : MonoBehaviour
     }
 
     public void TurnRight(){
-        rightIndicator.SetActive(true); // Set the parent active
+        if(rightIndicatorOn){
+            rightIndicator.SetActive(false); // Set the parent inactive
+            foreach (Transform child in rightIndicator.transform) {
+                child.gameObject.SetActive(false); // Set each immediate child inactive
+            }
+            rightIndicatorOn = false;
+        }else{
+            rightIndicator.SetActive(true); // Set the parent active
         foreach (Transform child in rightIndicator.transform) {
             child.gameObject.SetActive(true); // Set each immediate child active
         }
         leftIndicator.SetActive(false);
         rightIndicatorOn = true;
+        }   
     }
 
     public void TurnLeft(){
+        if(leftIndicatorOn){
+            leftIndicator.SetActive(false);
+            foreach (Transform child in leftIndicator.transform) {
+                child.gameObject.SetActive(false);
+            }
+            leftIndicatorOn = false;
+        }else{
         leftIndicator.SetActive(true);
         foreach (Transform child in leftIndicator.transform) {
             child.gameObject.SetActive(true);
         }
         rightIndicator.SetActive(false);
         leftIndicatorOn = true;
+        }
     }
 
     public void Hazard(){
-        TurnOffAll();
+        if(hazardOn){
+            TurnOffAll();
+            hazardOn = false;
+        }else{
+        // TurnOffAll();
         leftIndicator.SetActive(true);
         rightIndicator.SetActive(true);
+        // leftIndicator.GetComponent<LRLights>().ResetTimer();
+        // rightIndicator.GetComponent<LRLights>().ResetTimer();
         foreach (Transform child in leftIndicator.transform) {
+            child.gameObject.GetComponent<LRLights>().ResetTimer();
             child.gameObject.SetActive(true);
         }
         foreach (Transform child in rightIndicator.transform) {
+            child.gameObject.GetComponent<LRLights>().ResetTimer();
             child.gameObject.SetActive(true);
         }
         hazardOn = true;
+        }
     }
 
     //Turn off all indicators
@@ -60,5 +85,6 @@ public class IndicatorLightsController : MonoBehaviour
         rightIndicator.SetActive(false);
         leftIndicatorOn = false;
         rightIndicatorOn = false;
+        hazardOn = false;
     }
 }
