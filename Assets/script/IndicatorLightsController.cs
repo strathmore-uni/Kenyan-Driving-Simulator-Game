@@ -42,6 +42,7 @@ public class IndicatorLightsController : MonoBehaviour
     }
 
     public void Hazard(){
+        TurnOffAll();
         leftIndicator.SetActive(true);
         rightIndicator.SetActive(true);
         foreach (Transform child in leftIndicator.transform) {
@@ -51,5 +52,13 @@ public class IndicatorLightsController : MonoBehaviour
             child.gameObject.SetActive(true);
         }
         hazardOn = true;
+    }
+
+    //Turn off all indicators
+    public void TurnOffAll (){
+        leftIndicator.SetActive(false);
+        rightIndicator.SetActive(false);
+        leftIndicatorOn = false;
+        rightIndicatorOn = false;
     }
 }
