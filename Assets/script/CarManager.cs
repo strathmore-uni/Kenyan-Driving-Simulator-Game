@@ -9,7 +9,8 @@ public enum GearState
     Neutral,
     Running,
     CheckingChange,
-    Changing
+    Changing, 
+    Reverse
 };
 
 public class CarManager : MonoBehaviour
@@ -73,13 +74,16 @@ public class CarManager : MonoBehaviour
     public float changeGearTime = 0.5f;
 
     public float speedKMH;
+    
 
 
     void Start()
     {
         RB.centerOfMass = CenterOfMass.transform.localPosition;
-    }
+     
 
+    }
+    
     // Update is called once per frame
     void Update()
     {
@@ -97,6 +101,10 @@ public class CarManager : MonoBehaviour
         ApplySteering();
         UpdateWheel();
         ApplyBrakes();
+
+        // Update the isBraking variable based on the car's movement and braking input
+      
+        
     }
 
     void CheckInputs()
@@ -199,10 +207,11 @@ public class CarManager : MonoBehaviour
     //Steering Method
     void ApplySteering()
     {
-        float steeringAngle = SteeringCurve.Evaluate(speed) * SteeringInput;
+        // Get the steering input from the mobile device
+        float steeringInput = SimpleInput.GetAxis("Horizontal");
 
-        // Calculate the signed angle between the car's forward direction and its velocity
-        float velocityAngle = Vector3.SignedAngle(transform.forward, RB.velocity, Vector3.up);
+        // Calculate the steering angle based on the input and speed
+        float steeringAngle = steeringInput * steeringSensitivity * SteeringCurve.Evaluate(speedClamped);
 
         // Adjust steering angle based on the vehicle's movement direction
         if (Vector3.Dot(transform.forward, RB.velocity) < 0)
@@ -214,14 +223,16 @@ public class CarManager : MonoBehaviour
         // Smooth steering angle
         float currentSteerAngleFL = FLWheelCollider.steerAngle;
         float currentSteerAngleFR = FRWheelCollider.steerAngle;
-        steeringAngle = Mathf.Lerp(currentSteerAngleFL, steeringAngle, Time.deltaTime * 5f);
+        steeringAngle = Mathf.LerpAngle(currentSteerAngleFL, steeringAngle, Time.deltaTime * 5f);
 
         // Apply the smoothed and adjusted steering angle
         FLWheelCollider.steerAngle = steeringAngle;
         FRWheelCollider.steerAngle = steeringAngle;
 
         // Debug logs for monitoring
-        Debug.Log($"Steering Input: {SteeringInput}, Speed: {speed}, Steering Angle: {steeringAngle}, Velocity Angle: {velocityAngle}");
+        Debug.Log($"Steering Input: {steeringInput}, Speed: {speedClamped}, Steering Angle: {steeringAngle}");
+        Debug.Log($"FL Wheel Collider: {FLWheelCollider.steerAngle}, FR Wheel Collider: {FRWheelCollider.steerAngle}");
+        Debug.Log($"RB Velocity: {RB.velocity}, RB Angular Velocity: {RB.angularVelocity}");
     }
 
     // Wheel Update Method
