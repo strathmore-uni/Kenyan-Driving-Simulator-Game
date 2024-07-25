@@ -81,11 +81,13 @@ public class CarManager : MonoBehaviour
     void Start()
     {
         RB.centerOfMass = CenterOfMass.transform.localPosition;
-        gearShifting = GetComponent<ForwardReverseGearShifting>();
+        RB = GetComponent<Rigidbody>();
+        RB.centerOfMass = new Vector3(0, -0.5f, 0); // Adjust the y value to lower the center of mass
+        
 
 
     }
-    
+
     // Update is called once per frame
     void Update()
     {
@@ -104,22 +106,10 @@ public class CarManager : MonoBehaviour
         UpdateWheel();
         ApplyBrakes();
 
-        float acceleration = SimpleInput.GetAxis("Vertical");
-        float brake = SimpleInput.GetAxis("Brake");
+        // Debug logs to check input
+        Debug.Log($"Steering Input: {SimpleInput.GetAxis("Horizontal")}");
 
-        float gearDirection = gearShifting.GetGearDirection(); // Get the current gear direction
 
-        float torque = acceleration * MotorPower * gearDirection;
-        float brakeForce = brake * BrakePower * gearDirection;
-
-        RB.AddTorque(transform.forward * torque, ForceMode.Acceleration);
-        RB.AddTorque(transform.forward * -brakeForce, ForceMode.Acceleration);
-
-        float speed = RB.velocity.magnitude;
-        if (speed > maxSpeed)
-        {
-            RB.velocity = Vector3.ClampMagnitude(RB.velocity, maxSpeed);
-        }
 
 
     }
