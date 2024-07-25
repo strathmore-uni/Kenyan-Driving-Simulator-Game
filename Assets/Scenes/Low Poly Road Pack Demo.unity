@@ -6487,18 +6487,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1654648965060132}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f0d9e52f9802fe340adae58cfe5cbba3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  backViewCamera: {fileID: 695427859}
-  frontViewCamera: {fileID: 1383178328}
-  leftViewCamera: {fileID: 1911974091}
-  rightViewCamera: {fileID: 1749177789}
-  interiorViewCamera: {fileID: 1117356756}
-  canvas: {fileID: 512891505}
-  interiorViewButton: {fileID: 218185178}
+  thirdPersonCamera: {fileID: 1157686202}
+  firstPersonCamera: {fileID: 1117356756}
+  mainCanvas: {fileID: 512891505}
+  toggleButton: {fileID: 218185178}
 --- !u!1001 &238612856
 PrefabInstance:
   m_ObjectHideFlags: 0
