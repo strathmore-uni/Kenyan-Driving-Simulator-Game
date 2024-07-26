@@ -84,6 +84,12 @@ public class CarManager : MonoBehaviour
         RB = GetComponent<Rigidbody>();
         RB.centerOfMass = new Vector3(0, -0.5f, 0); // Adjust the y value to lower the center of mass
         
+        // Ensure the initial velocity is zero
+        RB.velocity = Vector3.zero;
+        RB.angularVelocity = Vector3.zero;
+
+        // Re-enable gravity after ensuring initial conditions
+        RB.useGravity = true;
 
 
     }
