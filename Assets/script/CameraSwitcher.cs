@@ -1,82 +1,69 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UI; // Required for using UI elements
 
 public class CameraSwitcher : MonoBehaviour
 {
-    public Camera backViewCamera;
-    public Camera frontViewCamera;
-    public Camera leftViewCamera;
-    public Camera rightViewCamera;
-    public Camera interiorViewCamera;
-    public Canvas canvas;
+    public Camera thirdPersonCamera; // Assign the third-person camera in the Inspector
+    public Camera firstPersonCamera; // Assign the first-person camera in the Inspector
+    public Canvas mainCanvas; // Assign the main canvas in the Inspector
+    public Button toggleButton; // Assign the button in the Inspector
 
-    public Button interiorViewButton;
-
-    private Camera currentCamera;
+    private bool isFirstPerson = false;
+    private float lastTapTime = 0f;
+    private float doubleTapThreshold = 0.3f; // Time threshold to consider as a double-tap
 
     void Start()
     {
-        currentCamera = backViewCamera;
-        canvas.enabled = true;
+        // Ensure the cameras and canvas are properly initialized
+        thirdPersonCamera.gameObject.SetActive(true);
+        firstPersonCamera.gameObject.SetActive(false);
+        mainCanvas.gameObject.SetActive(true);
 
-        interiorViewButton.onClick.AddListener(SwitchToInteriorView);
-    }
-
-    public void SwitchToInteriorView()
-    {
-        SwitchToCamera(interiorViewCamera);
-        canvas.enabled = false;
+        // Set up the button click event
+        toggleButton.onClick.AddListener(ToggleView);
     }
 
     void Update()
     {
-        if (Input.touchCount > 0)
+        // Check for double-tap to switch back to third-person view
+        if (isFirstPerson && Input.touchCount > 0)
         {
-            Touch touch = Input.touches[0];
-            if (touch.phase == TouchPhase.Began)
+            Touch touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Ended)
             {
-                startPos = touch.position;
-                fingerDown = true;
-            }
-            else if (touch.phase == TouchPhase.Ended && fingerDown)
-            {
-                fingerDown = false;
-                float swipeDistance = touch.position.x - startPos.x;
-                if (swipeDistance > pixelDistToDetect)
-                {
-                    SwitchToCamera(rightViewCamera);
-                    canvas.enabled = true;
-                }
-                else if (swipeDistance < -pixelDistToDetect)
-                {
-                    SwitchToCamera(leftViewCamera);
-                    canvas.enabled = true;
-                }
-                else if (touch.position.y - startPos.y > pixelDistToDetect)
-                {
-                    SwitchToCamera(frontViewCamera);
-                    canvas.enabled = true;
-                }
-                else if (touch.position.y - startPos.y < -pixelDistToDetect)
-                {
-                    SwitchToCamera(backViewCamera);
-                    canvas.enabled = true;
-                }
+                HandleDoubleTap();
             }
         }
     }
 
-    void SwitchToCamera(Camera camera)
+    public void ToggleView()
     {
-        if (currentCamera != null)
+        isFirstPerson = !isFirstPerson;
+        if (isFirstPerson)
         {
-            currentCamera.enabled = false;
+            // Switch to first-person view
+            thirdPersonCamera.gameObject.SetActive(false);
+            firstPersonCamera.gameObject.SetActive(true);
+            mainCanvas.gameObject.SetActive(false);
         }
-        camera.enabled = true;
-        currentCamera = camera;
+        else
+        {
+            // Switch to third-person view
+            thirdPersonCamera.gameObject.SetActive(true);
+            firstPersonCamera.gameObject.SetActive(false);
+            mainCanvas.gameObject.SetActive(true);
+        }
     }
 
-    private Vector2 startPos;
-    private bool fingerDown = false;
-    private float pixelDistToDetect = 50f;
+    void HandleDoubleTap()
+    {
+        float currentTapTime = Time.time;
+
+        if (currentTapTime - lastTapTime < doubleTapThreshold)
+        {
+            ToggleView(); // Switch back to third-person view
+        }
+
+        lastTapTime = currentTapTime;
+    }
 }

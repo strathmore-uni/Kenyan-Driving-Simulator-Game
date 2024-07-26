@@ -74,16 +74,20 @@ public class CarManager : MonoBehaviour
     public float changeGearTime = 0.5f;
 
     public float speedKMH;
-    
+    public ForwardReverseGearShifting gearShifting;
+
 
 
     void Start()
     {
         RB.centerOfMass = CenterOfMass.transform.localPosition;
-     
+        RB = GetComponent<Rigidbody>();
+        RB.centerOfMass = new Vector3(0, -0.5f, 0); // Adjust the y value to lower the center of mass
+        
+
 
     }
-    
+
     // Update is called once per frame
     void Update()
     {
@@ -102,10 +106,14 @@ public class CarManager : MonoBehaviour
         UpdateWheel();
         ApplyBrakes();
 
-        // Update the isBraking variable based on the car's movement and braking input
-      
-        
+        // Debug logs to check input
+        Debug.Log($"Steering Input: {SimpleInput.GetAxis("Horizontal")}");
+
+
+
+
     }
+
 
     void CheckInputs()
     {
@@ -210,15 +218,13 @@ public class CarManager : MonoBehaviour
         // Get the steering input from the mobile device
         float steeringInput = SimpleInput.GetAxis("Horizontal");
 
+        // Apply the steering sensitivity factor
+        steeringInput *= steeringSensitivity;
+        steeringInput = Mathf.Clamp(steeringInput, -1f, 1f); // added clamp to limit steering input
+
         // Calculate the steering angle based on the input and speed
         float steeringAngle = steeringInput * steeringSensitivity * SteeringCurve.Evaluate(speedClamped);
-
-        // Adjust steering angle based on the vehicle's movement direction
-        if (Vector3.Dot(transform.forward, RB.velocity) < 0)
-        {
-            // If reversing, invert the steering input
-            steeringAngle = -steeringAngle;
-        }
+        steeringAngle = Mathf.Clamp(steeringAngle, -30f, 30f); // added clamp to limit steering angle
 
         // Smooth steering angle
         float currentSteerAngleFL = FLWheelCollider.steerAngle;
