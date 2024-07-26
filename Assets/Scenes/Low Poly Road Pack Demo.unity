@@ -6606,8 +6606,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.726656, y: 1.1855646, z: 4.355925}
-  m_Center: {x: 0.07628613, y: 0.3372082, z: 0.3669109}
+  m_Size: {x: 0.42867422, y: 1.1855646, z: 4.3389287}
+  m_Center: {x: 0.2856579, y: 0.33720744, z: 0.3584137}
 --- !u!114 &238342444
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24034,7 +24034,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: e725be15851f8284f8f9fd8565e44564, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 605bc52434d196845bb43592268344aa, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -26949,7 +26949,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 0ce6304639cf8ba4c9a041990644e6f7, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 94a1438d6cb17a843861ece5162630a1, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -30793,7 +30793,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 1314b98a832a7b647bec7394b40256a6, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 812108c0cc884d3489c05e84fc43db2d, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -36140,10 +36140,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 527422274}
-  m_LocalEulerAnglesHint: {x: -1.393, y: -351.375, z: 1.755}
+  m_LocalEulerAnglesHint: {x: 2.063, y: -351.601, z: 2.875}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.34, y: 1.18}
+  m_AnchoredPosition: {x: -0.64, y: 0.48}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1157686204
@@ -76817,8 +76817,8 @@ GameObject:
   - component: {fileID: 4352965136720646}
   - component: {fileID: 4352965136720647}
   - component: {fileID: 4352965136720648}
-  - component: {fileID: 4352965136720649}
   - component: {fileID: 4352965136720650}
+  - component: {fileID: 4352965136720651}
   m_Layer: 6
   m_Name: Car 1
   m_TagString: Player
@@ -77325,7 +77325,7 @@ Transform:
   m_GameObject: {fileID: 1654648965060132}
   serializedVersion: 2
   m_LocalRotation: {x: -0.000015963897, y: -0.61750716, z: -0.011738587, w: 0.7864777}
-  m_LocalPosition: {x: -2.98, y: 0.68, z: -6.85}
+  m_LocalPosition: {x: -3.16, y: 0.68, z: -6.85}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -77380,7 +77380,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11f73a0f0fc9774488af2c20c4d58846, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioSource: {fileID: 4352965136720649}
+  audioSource: {fileID: 4352965136720651}
   collisionClip: {fileID: 8300000, guid: c2bf4b3a1dff91f42a1116ce274ca056, type: 3}
 --- !u!114 &4352965136720648
 MonoBehaviour:
@@ -77397,7 +77397,33 @@ MonoBehaviour:
   FLWheelCollider: {fileID: 284018554}
   FRWheelCollider: {fileID: 1943590092}
   steeringSensitivity: 1
---- !u!82 &4352965136720649
+--- !u!114 &4352965136720650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1654648965060132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 689d68b71fc274646ae6b9d2747b0f44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  runningSound: {fileID: 1005824897}
+  runningMaxVolume: 1
+  runningMaxPitch: 2
+  reverseSound: {fileID: 1590273399}
+  reverseMaxVolume: 0.5
+  reverseMaxPitch: 1
+  idleSound: {fileID: 38042487}
+  idleMaxVolume: 1
+  speedRatio: 0
+  LimiterSound: 3
+  LimiterFrequency: 10
+  LimiterEngage: 0.8
+  isEngineRunning: 1
+  startingSound: {fileID: 1800253340}
+--- !u!82 &4352965136720651
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -77417,7 +77443,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 1
+  MinDistance: 1.1368346
   MaxDistance: 500
   Pan2D: 0
   rolloffMode: 0
@@ -77493,32 +77519,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &4352965136720650
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1654648965060132}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 689d68b71fc274646ae6b9d2747b0f44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  runningSound: {fileID: 1005824897}
-  runningMaxVolume: 1
-  runningMaxPitch: 2
-  reverseSound: {fileID: 1590273399}
-  reverseMaxVolume: 0.5
-  reverseMaxPitch: 1
-  idleSound: {fileID: 38042487}
-  idleMaxVolume: 1
-  speedRatio: 0
-  LimiterSound: 3
-  LimiterFrequency: 10
-  LimiterEngage: 0.8
-  isEngineRunning: 1
-  startingSound: {fileID: 1800253340}
 --- !u!4 &4356847651082440
 Transform:
   m_ObjectHideFlags: 0
