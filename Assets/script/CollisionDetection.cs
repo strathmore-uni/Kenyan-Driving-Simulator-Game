@@ -1,38 +1,32 @@
 using UnityEngine;
+using System.Collections;
 
-public class VehicleCollisionSound : MonoBehaviour
+public class CollisionDetection : MonoBehaviour
 {
-    public AudioClip collisionSound; // Audio clip played on collision
-    public float collisionForceThreshold = 10f; // Minimum force required to trigger sound
-
-    private AudioSource audioSource; // Reference to the AudioSource component
-    private Rigidbody rb; // Reference to the Rigidbody component
+    public AudioSource audioSource; // Make AudioSource public
+    public AudioClip collisionClip; // Add a public AudioClip field
 
     void Start()
     {
-        // Add an AudioSource component to the vehicle
-        audioSource = gameObject.AddComponent<AudioSource>();
-        audioSource.playOnAwake = false; // Don't play the sound on awake
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+        }
 
-        rb = GetComponent<Rigidbody>();
-    }
-    void FixedUpdate()
-    {
-        // Update the position of the AudioSource component
-        audioSource.transform.position = rb.position;
+        // Assign the audio clip to the audio source
+        if (collisionClip != null)
+        {
+            audioSource.clip = collisionClip;
+        }
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        // Check if the collision force is above the threshold
-        float collisionForce = collision.impulse.magnitude;
-        if (collisionForce > collisionForceThreshold)
+        foreach (ContactPoint contact in collision.contacts)
         {
-            // Play the collision sound
-            audioSource.PlayOneShot(collisionSound);
-
-            // Debug logging
-            Debug.Log("Collision with another object!");
+            Debug.DrawRay(contact.point, contact.normal, Color.white);
         }
+        if (collision.relativeVelocity.magnitude > 2)
+            audioSource.Play();
     }
 }
