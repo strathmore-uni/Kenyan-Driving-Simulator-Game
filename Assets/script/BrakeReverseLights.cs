@@ -6,8 +6,8 @@ public class BrakeReverseLights : MonoBehaviour
 	public GameObject reverseLight;
 	public Rigidbody vehicleRigidbody;
 
-	private float brakeThreshold = 1.0f; // Speed threshold to consider the vehicle braking
-	private float reverseThreshold = -1.0f; // Speed threshold to consider the vehicle reversing
+	private float brakeThreshold = 0.5f; // Speed threshold to consider the vehicle braking
+	private float reverseThreshold = -0.5f; // Speed threshold to consider the vehicle reversing
 
     void Start()
     {
