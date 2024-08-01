@@ -82,9 +82,7 @@ public class CarManager : MonoBehaviour
     {
         RB.centerOfMass = CenterOfMass.transform.localPosition;
         RB = GetComponent<Rigidbody>();
-        RB.centerOfMass = new Vector3(0, -0.5f, 0); // Adjust the y value to lower the center of mass
-        
-        // Ensure the initial velocity is zero
+        RB.centerOfMass = CenterOfMass.transform.localPosition;
         RB.velocity = Vector3.zero;
         RB.angularVelocity = Vector3.zero;
 
@@ -107,10 +105,17 @@ public class CarManager : MonoBehaviour
         speedKMH = RB.velocity.magnitude *3.6f;
         speedClamped = Mathf.Lerp(speedClamped, speedKMH, Time.deltaTime);
         CheckInputs();
-        ApplyMotor();
-        ApplySteering();
+
+        // Only apply motor and steering if the car is moving
+        if (Mathf.Abs(FuelInput) > 0)
+        {
+            ApplyMotor();
+            ApplySteering();
+        }
         UpdateWheel();
         ApplyBrakes();
+
+        
 
         // Debug logs to check input
         Debug.Log($"Steering Input: {SimpleInput.GetAxis("Horizontal")}");
@@ -221,32 +226,24 @@ public class CarManager : MonoBehaviour
     //Steering Method
     void ApplySteering()
     {
-        // Get the steering input from the mobile device
         float steeringInput = SimpleInput.GetAxis("Horizontal");
-
-        // Apply the steering sensitivity factor
         steeringInput *= steeringSensitivity;
-        steeringInput = Mathf.Clamp(steeringInput, -1f, 1f); // added clamp to limit steering input
+        steeringInput = Mathf.Clamp(steeringInput, -1f, 1f);
 
-        // Calculate the steering angle based on the input and speed
         float steeringAngle = steeringInput * steeringSensitivity * SteeringCurve.Evaluate(speedClamped);
-        steeringAngle = Mathf.Clamp(steeringAngle, -30f, 30f); // added clamp to limit steering angle
+        steeringAngle = Mathf.Clamp(steeringAngle, -30f, 30f);
 
-        // Smooth steering angle
         float currentSteerAngleFL = FLWheelCollider.steerAngle;
         float currentSteerAngleFR = FRWheelCollider.steerAngle;
         steeringAngle = Mathf.LerpAngle(currentSteerAngleFL, steeringAngle, Time.deltaTime * 5f);
 
-        // Apply the smoothed and adjusted steering angle
         FLWheelCollider.steerAngle = steeringAngle;
         FRWheelCollider.steerAngle = steeringAngle;
 
-        // Debug logs for monitoring
         Debug.Log($"Steering Input: {steeringInput}, Speed: {speedClamped}, Steering Angle: {steeringAngle}");
         Debug.Log($"FL Wheel Collider: {FLWheelCollider.steerAngle}, FR Wheel Collider: {FRWheelCollider.steerAngle}");
         Debug.Log($"RB Velocity: {RB.velocity}, RB Angular Velocity: {RB.angularVelocity}");
     }
-
     // Wheel Update Method
     void UpdateWheel()
     {
