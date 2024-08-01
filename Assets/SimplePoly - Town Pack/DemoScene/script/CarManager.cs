@@ -77,7 +77,7 @@ public class CarManager : MonoBehaviour
     public ForwardReverseGearShifting gearShifting;
 
 
-
+    
     void Start()
     {
         RB.centerOfMass = CenterOfMass.transform.localPosition;
@@ -91,7 +91,9 @@ public class CarManager : MonoBehaviour
         // Re-enable gravity after ensuring initial conditions
         RB.useGravity = true;
 
-
+       
+        Cursor.visible = true;
+        
     }
 
     // Update is called once per frame
@@ -115,7 +117,7 @@ public class CarManager : MonoBehaviour
         // Debug logs to check input
         Debug.Log($"Steering Input: {SimpleInput.GetAxis("Horizontal")}");
 
-
+      
 
 
     }
