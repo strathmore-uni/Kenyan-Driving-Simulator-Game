@@ -12,115 +12,137 @@ public enum GearState
     Changing, 
     Reverse
 };
-
-public class CarManager : MonoBehaviour
+namespace MyNamespace
 {
-    // Wheel Mesh variables
-    public MeshRenderer FLWheelMesh, FRWheelMesh, RLWheelMesh, RRWheelMesh;
-
-    // Wheel Colliders variable
-    public WheelCollider FLWheelCollider, FRWheelCollider, RLWheelCollider, RRWheelCollider;
-
-    //Center of Mass
-    public GameObject CenterOfMass;
-
-    // Rigid body variable
-    public Rigidbody RB;
-
-    // Car control Inputs (Fuel, Steering, Brake)
-    public float FuelInput, SteeringInput, BrakeInput;
-
-    //gas and brake pedal buttons
-    public ThrottleButton gasPedal, brakePedal;
-
-    //Motor Power Inputs
-    public float MotorPower, SteeringPower, BrakePower;
-
-    //Speed of vehicle
-    private float speed;
-    public float maxSpeed;
-    private float speedClamped;
-
-    // Steering curve
-    public AnimationCurve SteeringCurve;
-
-    //Steering sensitivity
-    public float steeringSensitivity = 0.5f;
-    
-    //Slip angle for braking  
-    public float slipAngle;
-    
-    public int isEngineRunning;
-
-    public float RPM;
-    public float redLine;
-    public float idleRPM;
-    public TMP_Text rpmText;
-    public TMP_Text gearText;
-    public Transform rpmNeedle;
-    public float minNeedleRotation;
-    public float maxNeedleRotation;
-    public int currentGear;
-
-    public float[] gearRatios;
-    public float differentialRatio;
-    private float currentTorque;
-    private float clutch;
-    private float wheelRPM;
-    public AnimationCurve hpToRPMCurve;
-    private GearState gearState;
-    public float increaseGearRPM;
-    public float decreaseGearRPM;
-    public float changeGearTime = 0.5f;
-
-    public float speedKMH;
-    public ForwardReverseGearShifting gearShifting;
-
-
-    
-    void Start()
+    public class CarManager : MonoBehaviour
     {
-        RB.centerOfMass = CenterOfMass.transform.localPosition;
-        RB = GetComponent<Rigidbody>();
-        RB.centerOfMass = new Vector3(0, -0.5f, 0); // Adjust the y value to lower the center of mass
-        
-        // Ensure the initial velocity is zero
-        RB.velocity = Vector3.zero;
-        RB.angularVelocity = Vector3.zero;
+        // Wheel Mesh variables
+        public MeshRenderer FLWheelMesh, FRWheelMesh, RLWheelMesh, RRWheelMesh;
 
-        // Re-enable gravity after ensuring initial conditions
-        RB.useGravity = true;
+        // Wheel Colliders variable
+        public WheelCollider FLWheelCollider, FRWheelCollider, RLWheelCollider, RRWheelCollider;
 
-       
-        Cursor.visible = true;
-        
-    }
+        //Center of Mass
+        public GameObject CenterOfMass;
 
-    // Update is called once per frame
-    void Update()
-    {
-        float speedRatio = speedKMH / (maxSpeed * 1.1f);
-        float needleRotation = Mathf.Lerp(minNeedleRotation, maxNeedleRotation, speedRatio);
-        rpmNeedle.rotation = Quaternion.Euler(0, 0, needleRotation);
-        
-        // Update UI elements
-        rpmText.text = speedKMH.ToString("0.0") + " km/h";
-        gearText.text = (gearState == GearState.Neutral) ? "N" : (currentGear + 1).ToString();
-        speedKMH = RB.velocity.magnitude *3.6f;
-        speedClamped = Mathf.Lerp(speedClamped, speedKMH, Time.deltaTime);
-        CheckInputs();
-        ApplyMotor();
-        ApplySteering();
-        UpdateWheel();
-        ApplyBrakes();
+        // Rigid body variable
+        public Rigidbody RB;
 
-        // Debug logs to check input
-        Debug.Log($"Steering Input: {SimpleInput.GetAxis("Horizontal")}");
+        // Car control Inputs (Fuel, Steering, Brake)
+        public float FuelInput, SteeringInput, BrakeInput;
 
-      
+        //gas and brake pedal buttons
+        public ThrottleButton gasPedal, brakePedal;
+
+        //Motor Power Inputs
+        public float MotorPower, SteeringPower, BrakePower;
+
+        //Speed of vehicle
+        private float speed;
+        public float maxSpeed;
+        private float speedClamped;
+
+        // Steering curve
+        public AnimationCurve SteeringCurve;
+
+        //Steering sensitivity
+        public float steeringSensitivity = 0.5f;
+
+        //Slip angle for braking  
+        public float slipAngle;
+
+        public int isEngineRunning;
+
+        public float RPM;
+        public float redLine;
+        public float idleRPM;
+        public TMP_Text rpmText;
+        public TMP_Text gearText;
+        public Transform rpmNeedle;
+        public float minNeedleRotation;
+        public float maxNeedleRotation;
+        public int currentGear;
+
+        public float[] gearRatios;
+        public float differentialRatio;
+        private float currentTorque;
+        private float clutch;
+        private float wheelRPM;
+        public AnimationCurve hpToRPMCurve;
+        private GearState gearState;
+        public float increaseGearRPM;
+        public float decreaseGearRPM;
+        public float changeGearTime = 0.5f;
+
+        public float speedKMH;
+        public ForwardReverseGearShifting gearShifting;
+        private InteriorSteeringController steeringWheel;
+        public float turningSpeed = 5f;
+       /* public InteriorSteeringController InteriorSteeringController; */// Reference to the SteeringWheelController script
+        public float turnSpeed = 5f;
+        private animator charAnim;
+        private float animatorTurnAngle;
+        void Start()
+        {
+            RB.centerOfMass = CenterOfMass.transform.localPosition;
+            RB = GetComponent<Rigidbody>();
+           /* RB.centerOfMass = new Vector3(0, -0.5f, 0);*/ // Adjust the y value to lower the center of mass
+
+            // Ensure the initial velocity is zero
+            //RB.velocity = Vector3.zero;
+            //RB.angularVelocity = Vector3.zero;
+
+            //// Re-enable gravity after ensuring initial conditions
+            //RB.useGravity = true;
+
+            //steeringWheel = GetComponentInChildren<InteriorSteeringController>();
+            Cursor.visible = true;
+
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+            float speedRatio = speedKMH / (maxSpeed * 1.1f);
+            float needleRotation = Mathf.Lerp(minNeedleRotation, maxNeedleRotation, speedRatio);
+            rpmNeedle.rotation = Quaternion.Euler(0, 0, needleRotation);
+
+            // Update UI elements
+            rpmText.text = speedKMH.ToString("0.0") + " km/h";
+            gearText.text = (gearState == GearState.Neutral) ? "N" : (currentGear + 1).ToString();
+            speedKMH = RB.velocity.magnitude * 3.6f;
+            speedClamped = Mathf.Lerp(speedClamped, speedKMH, Time.deltaTime);
+            CheckInputs();
+            ApplyMotor();
+            ApplySteering();
+            UpdateWheel();
+            ApplyBrakes();
+
+            // Debug logs to check input
+            Debug.Log($"Steering Input: {SimpleInput.GetAxis("Horizontal")}");
+
+            // Get the current steering angle from the SteeringWheelController
+            float steeringAngle = InteriorSteeringController.steeringWheel.localEulerAngles.y;
+
+            // Calculate the turn direction based on the steering angle
+            float turnDirection = Mathf.Sign(steeringAngle);
+
+            // Apply the turn direction to the car's rotation
+            RB.AddTorque(transform.up * turnDirection * turnSpeed, ForceMode.VelocityChange);
+
+            // Move the car forward
+            RB.AddForce(transform.forward * speed, ForceMode.Acceleration);
 
 
-    }
+        }
+        void fixed update()
+        {
+            actiavteLights();
+        animatorTurnAngle = Mathf.Lerp(animatorTurnAngle, -horizontal, 28f*Time.deltaTime);
+            charAnim.SetFloat("turnAngle", animatorTurnAngle);
+        //steering rotation
+        steeringWheel.transform.localRotation = Quaternion.Euler(0, animatorTurnAngle * 35.0, 0);
+        }
 
 
     void CheckInputs()
@@ -130,7 +152,7 @@ public class CarManager : MonoBehaviour
         {
             FuelInput += gasPedal.dampenPress;
         }
-        if (brakePedal.isPressed)
+        if (brakePedal.isPressed) 
         {
             FuelInput -= brakePedal.dampenPress;
         }
@@ -183,7 +205,7 @@ public class CarManager : MonoBehaviour
     {
         currentTorque = CalculateTorque();
         RLWheelCollider.motorTorque = FuelInput * MotorPower;
-        RRWheelCollider.motorTorque = FuelInput * MotorPower;  
+        RRWheelCollider.motorTorque = FuelInput * MotorPower;
     }
 
     float CalculateTorque()
@@ -258,18 +280,18 @@ public class CarManager : MonoBehaviour
         UpdatePos(RRWheelCollider, RRWheelMesh);
     }
 
-    public float GetSpeedRatio()
+    float GetSpeedRatio()
     {
         var gas = Mathf.Clamp(Mathf.Abs(FuelInput), 0.5f, 1f);
         return RPM * gas / redLine;
     }
 
-    public void TakeInput(float input)
+    void TakeInput(float input)
     {
         FuelInput = input;
     }
 
-    public void TakeSteeringInput(float input)
+    void TakeSteeringInput(float input)
     {
         BrakeInput = input;
     }
@@ -328,5 +350,4 @@ public class CarManager : MonoBehaviour
         RLWheelCollider.brakeTorque = BrakeInput * BrakePower * .3f;
         RRWheelCollider.brakeTorque = BrakeInput * BrakePower * .3f;
     }
-
 }
