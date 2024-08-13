@@ -9,7 +9,7 @@ namespace RVP
     public class PropertyToggleSetter : MonoBehaviour
     {
         [Tooltip("Steering Controller")]
-        public SteeringControl steerer;
+        public SteeringWheelController steerer;
         public Transmission transmission;
 
         [Tooltip("Suspensions with properties to be toggled")]

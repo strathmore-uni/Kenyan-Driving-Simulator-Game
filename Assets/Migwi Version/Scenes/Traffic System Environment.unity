@@ -28563,7 +28563,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 401076, guid: 8aed0f8fb93c2ed4c96a99dcc130b90d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.16
       objectReference: {fileID: 0}
     - target: {fileID: 401076, guid: 8aed0f8fb93c2ed4c96a99dcc130b90d, type: 3}
       propertyPath: m_LocalPosition.z
@@ -49982,6 +49982,10 @@ PrefabInstance:
       propertyPath: m_LocalRotation.z
       value: 0.000000042087922
       objectReference: {fileID: 0}
+    - target: {fileID: 406376, guid: 2038051458b0cee4291c6aafd9e1df76, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.147
+      objectReference: {fileID: 0}
     - target: {fileID: 409492, guid: 2038051458b0cee4291c6aafd9e1df76, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.000000119208714
@@ -50193,6 +50197,22 @@ PrefabInstance:
     - target: {fileID: 498138, guid: 2038051458b0cee4291c6aafd9e1df76, type: 3}
       propertyPath: m_LocalPosition.z
       value: -0.0000011417951
+      objectReference: {fileID: 0}
+    - target: {fileID: 11409290, guid: 2038051458b0cee4291c6aafd9e1df76, type: 3}
+      propertyPath: headlightsOn
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 11409574, guid: 2038051458b0cee4291c6aafd9e1df76, type: 3}
+      propertyPath: joints.Array.data[0].hingeAnchor.x
+      value: -0.000000834465
+      objectReference: {fileID: 0}
+    - target: {fileID: 11409574, guid: 2038051458b0cee4291c6aafd9e1df76, type: 3}
+      propertyPath: joints.Array.data[0].hingeAnchor.y
+      value: -0.08999986
+      objectReference: {fileID: 0}
+    - target: {fileID: 11409574, guid: 2038051458b0cee4291c6aafd9e1df76, type: 3}
+      propertyPath: joints.Array.data[0].hingeAnchor.z
+      value: 0.48000044
       objectReference: {fileID: 0}
     - target: {fileID: 11470396, guid: 2038051458b0cee4291c6aafd9e1df76, type: 3}
       propertyPath: cameraHeightChange

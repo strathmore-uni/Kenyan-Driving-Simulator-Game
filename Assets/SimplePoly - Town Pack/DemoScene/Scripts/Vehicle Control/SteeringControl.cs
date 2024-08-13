@@ -7,7 +7,7 @@ namespace RVP
     [AddComponentMenu("RVP/Vehicle Controllers/Steering Control", 2)]
 
     // Class for steering vehicles
-    public class SteeringControl : MonoBehaviour
+    public class SteeringWheelController : MonoBehaviour
     {
         Transform tr;
         VehicleParent vp;

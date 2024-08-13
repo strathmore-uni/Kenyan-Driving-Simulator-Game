@@ -33,7 +33,7 @@ namespace RVP
                 if (showButtons) {
                     if (GUILayout.Button("Get Variables")) {
                         foreach (PropertyToggleSetter curTarget in allTargets) {
-                            curTarget.steerer = curTarget.GetComponentInChildren<SteeringControl>();
+                            curTarget.steerer = curTarget.GetComponentInChildren<SteeringWheelController>();
                             curTarget.transmission = curTarget.GetComponentInChildren<Transmission>();
                             curTarget.suspensionProperties = curTarget.GetComponentsInChildren<SuspensionPropertyToggle>();
                         }

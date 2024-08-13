@@ -34,7 +34,7 @@ namespace MyNamespace
         public float FuelInput, SteeringInput, BrakeInput;
 
         // Gas and brake pedal buttons
-        public ThrottleButton gasPedal, brakePedal;
+        public ThrottleButton gasPedal, brakePedal,interiorGasPedal, interiorBrakePedal;
 
         // Motor Power Inputs
         public float MotorPower, SteeringPower, BrakePower;
@@ -83,14 +83,29 @@ namespace MyNamespace
         public float turnSpeed = 5f;
         private Animator charAnim;
         private float animatorTurnAngle;
-        
+
+        public WheelCollider frontLeftWheel; // Front left wheel collider
+        public WheelCollider frontRightWheel; // Front right wheel collider
+        //public float maxSteerAngle = 30f; // Maximum steering angle
+
+        public float maxSteerAngle = 30f;
+        public float steerSpeed = 2f;
+        private float currentSteerAngle = 0f;
         void Start()
         {
             RB.centerOfMass = CenterOfMass.transform.localPosition;
             RB = GetComponent<Rigidbody>();
             Cursor.visible = true;
         }
+        public void Steer(float steerAngle)
+        {
+            // Clamp the steerAngle to the range of -maxSteerAngle to maxSteerAngle
+            steerAngle = Mathf.Clamp(steerAngle, -maxSteerAngle, maxSteerAngle);
 
+            // Apply the steering angle to the front wheels
+            frontLeftWheel.steerAngle = steerAngle;
+            frontRightWheel.steerAngle = steerAngle;
+        }
         // Update is called once per frame
         void Update()
         {
@@ -112,17 +127,24 @@ namespace MyNamespace
             // Debug logs to check input
             Debug.Log($"Steering Input: {SimpleInput.GetAxis("Horizontal")}");
 
-            // Get the current steering angle from the SteeringWheelController
-            //float steeringAngle = steeringWheel.transform.localEulerAngles.y;
+            // Get the input
+            float steerInput = SimpleInput.GetAxis("Horizontal"); // You might use touch input for mobile
 
-            // Calculate the turn direction based on the steering angle
-            //float turnDirection = Mathf.Sign(steeringAngle);
+            // Calculate the target angle
+            float targetSteerAngle = steerInput * maxSteerAngle;
 
-            // Apply the turn direction to the car's rotation
-            //RB.AddTorque(transform.up * turnDirection * turnSpeed, ForceMode.VelocityChange);
+            // Smoothly steer the car
+            currentSteerAngle = Mathf.Lerp(currentSteerAngle, targetSteerAngle, Time.deltaTime * steerSpeed);
 
-            //// Move the car forward
-            //RB.AddForce(transform.forward * speed, ForceMode.Acceleration);
+            // Apply the steering to the car
+            ApplySteering(currentSteerAngle);
+        }
+        void ApplySteering(float steerAngle)
+        {
+            // Assuming you have a Rigidbody for your car
+            Rigidbody rb = GetComponent<Rigidbody>();
+            Vector3 steeringForce = transform.forward * steerAngle;
+            rb.AddForce(steeringForce, ForceMode.VelocityChange);
         }
 
         void FixedUpdate()
@@ -136,6 +158,7 @@ namespace MyNamespace
 
         void CheckInputs()
         {
+            // Exterior inputs (already handling movement)
             FuelInput = SimpleInput.GetAxis("Vertical");
             if (gasPedal.isPressed)
             {
@@ -145,6 +168,18 @@ namespace MyNamespace
             {
                 FuelInput -= brakePedal.dampenPress;
             }
+
+            // Interior inputs (newly added)
+            if (interiorGasPedal.isPressed)
+            {
+                FuelInput -= interiorGasPedal.dampenPress; // <--- Change sign from + to -
+            }
+            if (interiorBrakePedal.isPressed)
+            {
+                FuelInput += interiorBrakePedal.dampenPress; // <--- Change sign from - to +
+            }
+
+
             if (Mathf.Abs(FuelInput) > 0 && isEngineRunning == 0)
             {
                 StartCoroutine(GetComponent<EngineAudio>().StartEngine());
@@ -186,7 +221,6 @@ namespace MyNamespace
                 BrakeInput = 0;
             }
         }
-
         // Motor Method
         public void ApplyMotor()
         {
