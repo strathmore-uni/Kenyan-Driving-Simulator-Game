@@ -65,6 +65,10 @@ namespace MyNamespace
         public float maxNeedleRotation;
         public int currentGear;
 
+        public Transform interiorSpeedometerNeedle; // Interior speedometer needle transform
+        public TMP_Text interiorSpeedText; // Interior speed display text
+        public TMP_Text interiorGearText;  // Interior gear display text
+
         public float[] gearRatios;
         public float differentialRatio;
         private float currentTorque;
@@ -116,8 +120,21 @@ namespace MyNamespace
             // Update UI elements
             rpmText.text = speedKMH.ToString("0.0") + " km/h";
             gearText.text = (gearState == GearState.Neutral) ? "N" : (currentGear + 1).ToString();
+
+            interiorSpeedText.text = speedKMH.ToString("0.0") + " km/h";
+            interiorGearText.text = (gearState == GearState.Neutral) ? "N" : (currentGear + 1).ToString();
+
             speedKMH = RB.velocity.magnitude * 3.6f;
             speedClamped = Mathf.Lerp(speedClamped, speedKMH, Time.deltaTime);
+
+            // Update interior speedometer
+            float interiorNeedleRotation = Mathf.Lerp(minNeedleRotation, maxNeedleRotation, speedRatio);
+            interiorSpeedometerNeedle.rotation = Quaternion.Euler(0, 0, interiorNeedleRotation);
+
+            
+
+
+
             CheckInputs();
             ApplyMotor();
             ApplySteering();
