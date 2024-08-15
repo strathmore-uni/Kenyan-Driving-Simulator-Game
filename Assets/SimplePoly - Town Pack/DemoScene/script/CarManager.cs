@@ -34,7 +34,7 @@ namespace MyNamespace
         public float FuelInput, SteeringInput, BrakeInput;
 
         // Gas and brake pedal buttons
-        public ThrottleButton gasPedal, brakePedal,interiorGasPedal, interiorBrakePedal;
+        public ThrottleButton gasPedal, brakePedal, interiorGasPedal, interiorBrakePedal;
 
         // Motor Power Inputs
         public float MotorPower, SteeringPower, BrakePower;
@@ -81,8 +81,6 @@ namespace MyNamespace
         public float changeGearTime = 0.5f;
 
         public float speedKMH;
-        //public ForwardReverseGearShifting gearShifting;
-        //private InteriorSteeringController steeringWheel;
         public float turningSpeed = 5f;
         public float turnSpeed = 5f;
         private Animator charAnim;
@@ -90,17 +88,19 @@ namespace MyNamespace
 
         public WheelCollider frontLeftWheel; // Front left wheel collider
         public WheelCollider frontRightWheel; // Front right wheel collider
-        //public float maxSteerAngle = 30f; // Maximum steering angle
 
         public float maxSteerAngle = 30f;
         public float steerSpeed = 2f;
         private float currentSteerAngle = 0f;
+
         void Start()
         {
             RB.centerOfMass = CenterOfMass.transform.localPosition;
             RB = GetComponent<Rigidbody>();
             Cursor.visible = true;
+            RB.centerOfMass = new Vector3(0, -0.9f, 0);  // Adjust the Y-value lower to make the car more stable.
         }
+
         public void Steer(float steerAngle)
         {
             // Clamp the steerAngle to the range of -maxSteerAngle to maxSteerAngle
@@ -110,6 +110,7 @@ namespace MyNamespace
             frontLeftWheel.steerAngle = steerAngle;
             frontRightWheel.steerAngle = steerAngle;
         }
+
         // Update is called once per frame
         void Update()
         {
@@ -131,13 +132,9 @@ namespace MyNamespace
             float interiorNeedleRotation = Mathf.Lerp(minNeedleRotation, maxNeedleRotation, speedRatio);
             interiorSpeedometerNeedle.rotation = Quaternion.Euler(0, 0, interiorNeedleRotation);
 
-            
-
-
-
             CheckInputs();
             ApplyMotor();
-            ApplySteering();
+            //ApplySteering();
             UpdateWheel();
             ApplyBrakes();
 
@@ -156,12 +153,23 @@ namespace MyNamespace
             // Apply the steering to the car
             ApplySteering(currentSteerAngle);
         }
+
+        void Move(float direction)
+        {
+            // Example of moving the car
+            transform.Translate(Vector3.forward * speed * direction * Time.deltaTime);
+        }
+
         void ApplySteering(float steerAngle)
         {
-            // Assuming you have a Rigidbody for your car
-            Rigidbody rb = GetComponent<Rigidbody>();
-            Vector3 steeringForce = transform.forward * steerAngle;
-            rb.AddForce(steeringForce, ForceMode.VelocityChange);
+            // Apply the steering to the car
+            float adjustedSteerAngle = steerAngle * SteeringCurve.Evaluate(speedClamped);
+            frontLeftWheel.steerAngle = adjustedSteerAngle;
+            frontRightWheel.steerAngle = adjustedSteerAngle;
+
+            // Ensure the steering is smooth and does not exceed max angle
+            frontLeftWheel.steerAngle = Mathf.Clamp(frontLeftWheel.steerAngle, -maxSteerAngle, maxSteerAngle);
+            frontRightWheel.steerAngle = Mathf.Clamp(frontRightWheel.steerAngle, -maxSteerAngle, maxSteerAngle);
         }
 
         void FixedUpdate()
@@ -169,13 +177,10 @@ namespace MyNamespace
             ActivateLights();
             animatorTurnAngle = Mathf.Lerp(animatorTurnAngle, -SimpleInput.GetAxis("Horizontal"), 28f * Time.deltaTime);
             charAnim.SetFloat("turnAngle", animatorTurnAngle);
-            // Steering rotation
-            //steeringWheel.transform.localRotation = Quaternion.Euler(0, animatorTurnAngle * 35.0f, 0);
         }
 
         void CheckInputs()
         {
-            // Exterior inputs (already handling movement)
             FuelInput = SimpleInput.GetAxis("Vertical");
             if (gasPedal.isPressed)
             {
@@ -189,13 +194,12 @@ namespace MyNamespace
             // Interior inputs (newly added)
             if (interiorGasPedal.isPressed)
             {
-                FuelInput -= interiorGasPedal.dampenPress; // <--- Change sign from + to -
+                FuelInput -= interiorGasPedal.dampenPress; // Change sign from + to -
             }
             if (interiorBrakePedal.isPressed)
             {
-                FuelInput += interiorBrakePedal.dampenPress; // <--- Change sign from - to +
+                FuelInput += interiorBrakePedal.dampenPress; // Change sign from - to +
             }
-
 
             if (Mathf.Abs(FuelInput) > 0 && isEngineRunning == 0)
             {
@@ -238,7 +242,12 @@ namespace MyNamespace
                 BrakeInput = 0;
             }
         }
-        // Motor Method
+        public float GetSpeedRatio()
+        {
+            var gas = Mathf.Clamp(Mathf.Abs(FuelInput), 0.5f, 1f);
+            return RPM * gas / redLine;
+        }
+
         public void ApplyMotor()
         {
             currentTorque = CalculateTorque();
@@ -266,85 +275,51 @@ namespace MyNamespace
             }
             if (isEngineRunning > 0)
             {
-                if (clutch < 0.1f)
+                if (clutch < 0.5f)
                 {
-                    RPM = Mathf.Lerp(RPM, Mathf.Max(idleRPM, redLine * FuelInput) + Random.Range(-50, 50), Time.deltaTime);
-                }
-                else
-                {
-                    wheelRPM = Mathf.Abs((RRWheelCollider.rpm + RLWheelCollider.rpm) / 2f) * gearRatios[currentGear] * differentialRatio;
-                    RPM = Mathf.Lerp(RPM, Mathf.Max(idleRPM - 100, wheelRPM), Time.deltaTime * 3f);
-                    torque = (hpToRPMCurve.Evaluate(RPM / redLine) * MotorPower / RPM) * gearRatios[currentGear] * differentialRatio * 5252f * clutch;
+                    torque = MotorPower;
                 }
             }
             return torque;
         }
 
-        // Steering Method
-        public void ApplySteering()
+        void ApplyBrakes()
         {
-            // Get the steering input from the mobile device
-            float steeringInput = SimpleInput.GetAxis("Horizontal");
-
-            // Apply the steering sensitivity factor
-            steeringInput *= steeringSensitivity;
-            steeringInput = Mathf.Clamp(steeringInput, -1f, 1f); // added clamp to limit steering input
-
-            // Calculate the steering angle based on the input and speed
-            float steeringAngle = steeringInput * steeringSensitivity * SteeringCurve.Evaluate(speedClamped);
-            steeringAngle = Mathf.Clamp(steeringAngle, -30f, 30f); // added clamp to limit steering angle
-
-            // Smooth steering angle
-            float currentSteerAngleFL = FLWheelCollider.steerAngle;
-            float currentSteerAngleFR = FRWheelCollider.steerAngle;
-            steeringAngle = Mathf.LerpAngle(currentSteerAngleFL, steeringAngle, Time.deltaTime * 5f);
-
-            // Apply the smoothed and adjusted steering angle
-            FLWheelCollider.steerAngle = steeringAngle;
-            FRWheelCollider.steerAngle = steeringAngle;
-
-            // Debug logs for monitoring
-            Debug.Log($"Steering Input: {steeringInput}, Speed: {speedClamped}, Steering Angle: {steeringAngle}");
-            Debug.Log($"FL Wheel Collider: {FLWheelCollider.steerAngle}, FR Wheel Collider: {FRWheelCollider.steerAngle}");
-            Debug.Log($"RB Velocity: {RB.velocity}, RB Angular Velocity: {RB.angularVelocity}");
+            BrakeInput = Mathf.Clamp01(BrakeInput);
+            FLWheelCollider.brakeTorque = BrakeInput * BrakePower;
+            FRWheelCollider.brakeTorque = BrakeInput * BrakePower;
+            RLWheelCollider.brakeTorque = BrakeInput * BrakePower;
+            RRWheelCollider.brakeTorque = BrakeInput * BrakePower;
         }
 
-        // Wheel Update Method
         void UpdateWheel()
         {
-            UpdatePos(FLWheelCollider, FLWheelMesh);
-            UpdatePos(FRWheelCollider, FRWheelMesh);
-            UpdatePos(RLWheelCollider, RLWheelMesh);
-            UpdatePos(RRWheelCollider, RRWheelMesh);
+            UpdateWheelMesh(FLWheelCollider, FLWheelMesh);
+            UpdateWheelMesh(FRWheelCollider, FRWheelMesh);
+            UpdateWheelMesh(RLWheelCollider, RLWheelMesh);
+            UpdateWheelMesh(RRWheelCollider, RRWheelMesh);
         }
 
-        public float GetSpeedRatio()
+        void UpdateWheelMesh(WheelCollider wheelCollider, MeshRenderer wheelMesh)
         {
-            var gas = Mathf.Clamp(Mathf.Abs(FuelInput), 0.5f, 1f);
-            return RPM * gas / redLine;
+            Quaternion q;
+            Vector3 p;
+            wheelCollider.GetWorldPose(out p, out q);
+            wheelMesh.transform.position = p;
+            wheelMesh.transform.rotation = q;
         }
 
-        void TakeInput(float input)
+        void ActivateLights()
         {
-            FuelInput = input;
+            if (Input.GetKey(KeyCode.L))
+            {
+                // Logic to activate lights
+            }
         }
 
-        void TakeSteeringInput(float input)
-        {
-            BrakeInput = input;
-        }
+        
+    
 
-        // Wheel Position Update Method
-        void UpdatePos(WheelCollider Col, MeshRenderer Mesh)
-        {
-            Vector3 Pos;
-            Quaternion quar = Col.transform.rotation;
-
-            Col.GetWorldPose(out Pos, out quar);
-
-            Mesh.transform.position = Pos;
-            Mesh.transform.rotation = quar;
-        }
 
         IEnumerator ChangeGear(int gearChange)
         {
@@ -380,17 +355,18 @@ namespace MyNamespace
                 gearState = GearState.Running;
         }
 
-        void ApplyBrakes()
-        {
-            FLWheelCollider.brakeTorque = BrakeInput * BrakePower * .7f;
-            FRWheelCollider.brakeTorque = BrakeInput * BrakePower * .7f;
-            RLWheelCollider.brakeTorque = BrakeInput * BrakePower * .3f;
-            RRWheelCollider.brakeTorque = BrakeInput * BrakePower * .3f;
-        }
+        //void ApplyBrakes()
+        //{
+        //    FLWheelCollider.brakeTorque = BrakeInput * BrakePower * .7f;
+        //    FRWheelCollider.brakeTorque = BrakeInput * BrakePower * .7f;
+        //    RLWheelCollider.brakeTorque = BrakeInput * BrakePower * .3f;
+        //    RRWheelCollider.brakeTorque = BrakeInput * BrakePower * .3f;
+        //}
 
-        void ActivateLights()
-        {
-            // Add your lights activation logic here
-        }
+        
+        //void ActivateLights()
+        //{
+        //    // Add your lights activation logic here
+        //}
     }
 }
