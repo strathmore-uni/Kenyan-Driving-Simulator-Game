@@ -22,7 +22,7 @@ namespace MyNamespace
         public MeshRenderer FLWheelMesh, FRWheelMesh, RLWheelMesh, RRWheelMesh;
 
         // Wheel Colliders variable
-        public WheelCollider FLWheelCollider, FRWheelCollider, RLWheelCollider, RRWheelCollider;
+        public SphereCollider FLWheelCollider, FRWheelCollider, RLWheelCollider, RRWheelCollider;
 
         // Center of Mass
         public GameObject CenterOfMass;
@@ -86,8 +86,8 @@ namespace MyNamespace
         private Animator charAnim;
         private float animatorTurnAngle;
 
-        public WheelCollider frontLeftWheel; // Front left wheel collider
-        public WheelCollider frontRightWheel; // Front right wheel collider
+        private SphereCollider frontLeftWheel; // Front left wheel collider
+        private SphereCollider frontRightWheel; // Front right wheel collider
 
         public float maxSteerAngle = 30f;
         public float steerSpeed = 2f;
@@ -101,16 +101,13 @@ namespace MyNamespace
             RB.centerOfMass = new Vector3(0, -0.9f, 0);  // Adjust the Y-value lower to make the car more stable.
         }
 
-        public void Steer(float steerAngle)
-        {
-            // Clamp the steerAngle to the range of -maxSteerAngle to maxSteerAngle
-            steerAngle = Mathf.Clamp(steerAngle, -maxSteerAngle, maxSteerAngle);
-
-            // Apply the steering angle to the front wheels
-            frontLeftWheel.steerAngle = steerAngle;
-            frontRightWheel.steerAngle = steerAngle;
-        }
-
+        //void ApplySteering(float steerAngle)
+        //{
+        //    // Apply the steering to the car
+        //    float adjustedSteerAngle = steerAngle * SteeringCurve.Evaluate(speedClamped);
+        //    frontLeftWheel.transform.localRotation = Quaternion.Euler(0, adjustedSteerAngle, 0);
+        //    frontRightWheel.transform.localRotation = Quaternion.Euler(0, adjustedSteerAngle, 0);
+        //}
         // Update is called once per frame
         void Update()
         {
@@ -151,7 +148,7 @@ namespace MyNamespace
             currentSteerAngle = Mathf.Lerp(currentSteerAngle, targetSteerAngle, Time.deltaTime * steerSpeed);
 
             // Apply the steering to the car
-            ApplySteering(currentSteerAngle);
+            /*ApplySteering(currentSteerAngle)*/;
         }
 
         void Move(float direction)
@@ -163,13 +160,15 @@ namespace MyNamespace
         void ApplySteering(float steerAngle)
         {
             // Apply the steering to the car
-            float adjustedSteerAngle = steerAngle * SteeringCurve.Evaluate(speedClamped);
-            frontLeftWheel.steerAngle = adjustedSteerAngle;
-            frontRightWheel.steerAngle = adjustedSteerAngle;
+            float adjustedSteerAngle = steerAngle * SteeringCurve.Evaluate(speed);
+            frontLeftWheel.transform.localRotation = Quaternion.Euler(0, adjustedSteerAngle, 0);
+            frontRightWheel.transform.localRotation = Quaternion.Euler(0, adjustedSteerAngle, 0);
+        }
 
-            // Ensure the steering is smooth and does not exceed max angle
-            frontLeftWheel.steerAngle = Mathf.Clamp(frontLeftWheel.steerAngle, -maxSteerAngle, maxSteerAngle);
-            frontRightWheel.steerAngle = Mathf.Clamp(frontRightWheel.steerAngle, -maxSteerAngle, maxSteerAngle);
+        void ApplyMovement(float speed)
+        {
+            // Apply the movement to the car
+           RB.velocity = transform.forward * speed;
         }
 
         void FixedUpdate()
@@ -248,11 +247,11 @@ namespace MyNamespace
             return RPM * gas / redLine;
         }
 
-        public void ApplyMotor()
+        void ApplyMotor()
         {
             currentTorque = CalculateTorque();
-            RLWheelCollider.motorTorque = FuelInput * MotorPower;
-            RRWheelCollider.motorTorque = FuelInput * MotorPower;
+            // Update: Use Rigidbody.AddTorque instead of WheelCollider.motorTorque
+            RB.AddTorque(transform.up * FuelInput * MotorPower, ForceMode.VelocityChange);
         }
 
         float CalculateTorque()
@@ -286,27 +285,22 @@ namespace MyNamespace
         void ApplyBrakes()
         {
             BrakeInput = Mathf.Clamp01(BrakeInput);
-            FLWheelCollider.brakeTorque = BrakeInput * BrakePower;
-            FRWheelCollider.brakeTorque = BrakeInput * BrakePower;
-            RLWheelCollider.brakeTorque = BrakeInput * BrakePower;
-            RRWheelCollider.brakeTorque = BrakeInput * BrakePower;
+            // Update: Use Rigidbody.AddForce instead of WheelCollider.brakeTorque
+            RB.AddForce(-transform.forward * BrakeInput * BrakePower, ForceMode.VelocityChange);
         }
-
         void UpdateWheel()
         {
-            UpdateWheelMesh(FLWheelCollider, FLWheelMesh);
-            UpdateWheelMesh(FRWheelCollider, FRWheelMesh);
-            UpdateWheelMesh(RLWheelCollider, RLWheelMesh);
-            UpdateWheelMesh(RRWheelCollider, RRWheelMesh);
+            // Update: Remove WheelCollider references and use Rigidbody instead
+            UpdateWheelMesh(RB, FLWheelMesh);
+            UpdateWheelMesh(RB, FRWheelMesh);
+            UpdateWheelMesh(RB, RLWheelMesh);
+            UpdateWheelMesh(RB, RRWheelMesh);
         }
 
-        void UpdateWheelMesh(WheelCollider wheelCollider, MeshRenderer wheelMesh)
+        void UpdateWheelMesh(Rigidbody rb, MeshRenderer wheelMesh)
         {
-            Quaternion q;
-            Vector3 p;
-            wheelCollider.GetWorldPose(out p, out q);
-            wheelMesh.transform.position = p;
-            wheelMesh.transform.rotation = q;
+            wheelMesh.transform.position = rb.transform.position;
+            wheelMesh.transform.rotation = rb.transform.rotation;
         }
 
         void ActivateLights()
