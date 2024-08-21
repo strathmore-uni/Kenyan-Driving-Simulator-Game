@@ -93,10 +93,13 @@ namespace MyNamespace
         public float steerSpeed = 2f;
         private float currentSteerAngle = 0f;
 
+        public float suspensionDistance = 0.2f;
+        public float suspensionSpring = 20000f;
+        public float suspensionDamping = 4500f;
         void Start()
         {
-            RB.centerOfMass = CenterOfMass.transform.localPosition;
             RB = GetComponent<Rigidbody>();
+            RB.centerOfMass = CenterOfMass.transform.localPosition;
             Cursor.visible = true;
             RB.centerOfMass = new Vector3(0, -0.9f, 0);  // Adjust the Y-value lower to make the car more stable.
         }
@@ -134,6 +137,7 @@ namespace MyNamespace
             //ApplySteering();
             UpdateWheel();
             ApplyBrakes();
+            //ApplySuspension();
 
             // Debug logs to check input
             Debug.Log($"Steering Input: {SimpleInput.GetAxis("Horizontal")}");
@@ -150,6 +154,22 @@ namespace MyNamespace
             // Apply the steering to the car
             /*ApplySteering(currentSteerAngle)*/;
         }
+        
+
+        //void ApplySuspension()
+        //{
+        //    RaycastHit hit;
+        //    if (Physics.Raycast(RLWheelCollider.transform.position, -transform.up, out hit, suspensionDistance))
+        //    {
+        //        Vector3 velocity = RB.GetPointVelocity(hit.point);
+        //        float compression = 1.0f - (hit.distance / suspensionDistance);
+
+        //        Vector3 suspensionForce = transform.up * (compression * suspensionSpring) - velocity * suspensionDamping;
+
+        //        RB.AddForceAtPosition(suspensionForce, RLWheelCollider.transform.position);
+        //        RB.AddForceAtPosition(suspensionForce, RRWheelCollider.transform.position);
+        //    }
+        //}
 
         void Move(float direction)
         {
@@ -171,12 +191,12 @@ namespace MyNamespace
            RB.velocity = transform.forward * speed;
         }
 
-        void FixedUpdate()
-        {
-            ActivateLights();
-            animatorTurnAngle = Mathf.Lerp(animatorTurnAngle, -SimpleInput.GetAxis("Horizontal"), 28f * Time.deltaTime);
-            charAnim.SetFloat("turnAngle", animatorTurnAngle);
-        }
+        //void FixedUpdate()
+        //{
+        //    ActivateLights();
+        //    animatorTurnAngle = Mathf.Lerp(animatorTurnAngle, -SimpleInput.GetAxis("Horizontal"), 28f * Time.deltaTime);
+        //    charAnim.SetFloat("turnAngle", animatorTurnAngle);
+        //}
 
         void CheckInputs()
         {
@@ -290,18 +310,20 @@ namespace MyNamespace
         }
         void UpdateWheel()
         {
-            // Update: Remove WheelCollider references and use Rigidbody instead
-            UpdateWheelMesh(RB, FLWheelMesh);
-            UpdateWheelMesh(RB, FRWheelMesh);
-            UpdateWheelMesh(RB, RLWheelMesh);
-            UpdateWheelMesh(RB, RRWheelMesh);
+            // Correctly call UpdateWheelMesh with the corresponding SphereCollider and MeshRenderer
+            UpdateWheelMesh(FLWheelCollider, FLWheelMesh);
+            UpdateWheelMesh(FRWheelCollider, FRWheelMesh);
+            UpdateWheelMesh(RLWheelCollider, RLWheelMesh);
+            UpdateWheelMesh(RRWheelCollider, RRWheelMesh);
         }
 
-        void UpdateWheelMesh(Rigidbody rb, MeshRenderer wheelMesh)
+
+        void UpdateWheelMesh(SphereCollider wheelCollider, MeshRenderer wheelMesh)
         {
-            wheelMesh.transform.position = rb.transform.position;
-            wheelMesh.transform.rotation = rb.transform.rotation;
+            wheelMesh.transform.position = wheelCollider.transform.position;
+            wheelMesh.transform.rotation = wheelCollider.transform.rotation;
         }
+
 
         void ActivateLights()
         {
