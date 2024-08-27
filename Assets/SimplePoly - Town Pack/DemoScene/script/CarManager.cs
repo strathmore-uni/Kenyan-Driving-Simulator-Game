@@ -34,7 +34,7 @@ namespace MyNamespace
         public float FuelInput, SteeringInput, BrakeInput;
 
         // Gas and brake pedal buttons
-        public ThrottleButton gasPedal, brakePedal, interiorGasPedal, interiorBrakePedal;
+        public ThrottleButton gasPedal, brakePedal;
 
         // Motor Power Inputs
         public float MotorPower, SteeringPower, BrakePower;
@@ -65,9 +65,7 @@ namespace MyNamespace
         public float maxNeedleRotation;
         public int currentGear;
 
-        public Transform interiorSpeedometerNeedle; // Interior speedometer needle transform
-        public TMP_Text interiorSpeedText; // Interior speed display text
-        public TMP_Text interiorGearText;  // Interior gear display text
+       
 
         public float[] gearRatios;
         public float differentialRatio;
@@ -93,6 +91,11 @@ namespace MyNamespace
         public float steerSpeed = 2f;
         private float currentSteerAngle = 0f;
 
+        public float accelerationForce = 10.0f; // adjust this value to your liking
+        public float reverseSpeed = 5.0f; // adjust this value to your liking
+        public float forwardSpeed = 20.0f; // adjust this value to your liking
+        public float brakingForce = 10.0f; // adjust this value to your liking
+       
         void Start()
         {
             RB.centerOfMass = CenterOfMass.transform.localPosition;
@@ -122,15 +125,13 @@ namespace MyNamespace
             rpmText.text = speedKMH.ToString("0.0") + " km/h";
             gearText.text = (gearState == GearState.Neutral) ? "N" : (currentGear + 1).ToString();
 
-            interiorSpeedText.text = speedKMH.ToString("0.0") + " km/h";
-            interiorGearText.text = (gearState == GearState.Neutral) ? "N" : (currentGear + 1).ToString();
+            
 
             speedKMH = RB.velocity.magnitude * 3.6f;
             speedClamped = Mathf.Lerp(speedClamped, speedKMH, Time.deltaTime);
 
             // Update interior speedometer
-            float interiorNeedleRotation = Mathf.Lerp(minNeedleRotation, maxNeedleRotation, speedRatio);
-            interiorSpeedometerNeedle.rotation = Quaternion.Euler(0, 0, interiorNeedleRotation);
+           
 
             CheckInputs();
             ApplyMotor();
@@ -171,13 +172,86 @@ namespace MyNamespace
             frontLeftWheel.steerAngle = Mathf.Clamp(frontLeftWheel.steerAngle, -maxSteerAngle, maxSteerAngle);
             frontRightWheel.steerAngle = Mathf.Clamp(frontRightWheel.steerAngle, -maxSteerAngle, maxSteerAngle);
         }
+        void CheckInputs(out float fuelInput, out float brakeInput)
+        {
+            // Your input checking logic here
+            fuelInput = SimpleInput.GetAxis("Vertical");
+            brakeInput = SimpleInput.GetAxis("Brake");
+        }
 
         void FixedUpdate()
         {
             ActivateLights();
             animatorTurnAngle = Mathf.Lerp(animatorTurnAngle, -SimpleInput.GetAxis("Horizontal"), 28f * Time.deltaTime);
             charAnim.SetFloat("turnAngle", animatorTurnAngle);
+
+            float fuelInput;
+            float brakeInput;
+            CheckInputs(out fuelInput, out brakeInput);
+
+            if (fuelInput > 0.0f)
+                {
+                    Accelerate(fuelInput);
+                }
+                else if (brakeInput > 0.0f)
+                {
+                    Brake(brakeInput);
+                }
+                else if (fuelInput < 0.0f)
+                {
+                    Reverse(-fuelInput);
+                }
+                else
+                {
+                    SlowDown();
+                }
+            
+
+            void Accelerate(float input)
+            {
+                // Apply a force in the direction of the car's forward direction
+                RB.AddForce(transform.forward * accelerationForce * input, ForceMode.Acceleration);
+
+                // Limit the forward speed
+                if (RB.velocity.magnitude > forwardSpeed)
+                {
+                    RB.velocity = Vector3.ClampMagnitude(RB.velocity, forwardSpeed);
+                }
+            }
+
+            void Brake(float input)
+            {
+                // Apply a force in the opposite direction of the car's velocity
+                RB.AddForce(-RB.velocity.normalized * brakingForce * input, ForceMode.Acceleration);
+
+                // Limit the forward speed
+                if (RB.velocity.magnitude > forwardSpeed)
+                {
+                    RB.velocity = Vector3.ClampMagnitude(RB.velocity, forwardSpeed);
+                }
+            }
+
+            void Reverse(float input)
+            {
+                // Apply a force in the opposite direction of the car's forward direction
+                RB.AddForce(-transform.forward * accelerationForce * input, ForceMode.Acceleration);
+
+                // Limit the reverse speed
+                if (RB.velocity.magnitude > reverseSpeed)
+                {
+                    RB.velocity = Vector3.ClampMagnitude(RB.velocity, reverseSpeed);
+                }
+            }
+
+            void SlowDown()
+            {
+                // Apply a force in the opposite direction of the car's velocity
+                RB.AddForce(-RB.velocity.normalized * brakingForce, ForceMode.Acceleration);
+            }
         }
+
+        float doubleClickTime = 0.5f; // Time in seconds to consider a double click
+        float lastBrakePressTime = 0f;
 
         void CheckInputs()
         {
@@ -186,25 +260,21 @@ namespace MyNamespace
             {
                 FuelInput += gasPedal.dampenPress;
             }
+
             if (brakePedal.isPressed)
             {
                 FuelInput -= brakePedal.dampenPress;
+
+                // Check for double click
+                float currentTime = Time.time;
+                if (currentTime - lastBrakePressTime < doubleClickTime)
+                {
+                    // Double click detected, apply emergency brake
+                    FuelInput = -1f; // Set FuelInput to maximum braking value
+                }
+                lastBrakePressTime = currentTime;
             }
 
-            // Interior inputs (newly added)
-            if (interiorGasPedal.isPressed)
-            {
-                FuelInput -= interiorGasPedal.dampenPress; // Change sign from + to -
-            }
-            if (interiorBrakePedal.isPressed)
-            {
-                FuelInput += interiorBrakePedal.dampenPress; // Change sign from - to +
-            }
-
-            if (Mathf.Abs(FuelInput) > 0 && isEngineRunning == 0)
-            {
-                StartCoroutine(GetComponent<EngineAudio>().StartEngine());
-            }
 
             SteeringInput = SimpleInput.GetAxis("Horizontal");
 

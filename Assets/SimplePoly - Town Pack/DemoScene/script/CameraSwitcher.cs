@@ -7,7 +7,7 @@ public class CameraSwitcher : MonoBehaviour
     public Camera firstPersonCamera; // Assign the first-person camera in the Inspector
     public Canvas mainCanvas; // Assign the main canvas in the Inspector
     public Button toggleButton; // Assign the button in the Inspector
-    public Canvas Canvas;
+    
 
     private bool isFirstPerson = false;
     private float lastTapTime = 0f;
@@ -19,8 +19,7 @@ public class CameraSwitcher : MonoBehaviour
         thirdPersonCamera.gameObject.SetActive(true);
         firstPersonCamera.gameObject.SetActive(false);
         mainCanvas.gameObject.SetActive(true);
-        Canvas.gameObject.SetActive(false);
-
+        
         // Set up the button click event
         toggleButton.onClick.AddListener(ToggleView);
     }
@@ -47,7 +46,7 @@ public class CameraSwitcher : MonoBehaviour
             thirdPersonCamera.gameObject.SetActive(false);
             firstPersonCamera.gameObject.SetActive(true);
             mainCanvas.gameObject.SetActive(false);
-            Canvas.gameObject.SetActive(true);
+           
         }
         else
         {
@@ -55,7 +54,7 @@ public class CameraSwitcher : MonoBehaviour
             thirdPersonCamera.gameObject.SetActive(true);
             firstPersonCamera.gameObject.SetActive(false);
             mainCanvas.gameObject.SetActive(true);
-            Canvas.gameObject.SetActive(false);
+            
         }
     }
 
