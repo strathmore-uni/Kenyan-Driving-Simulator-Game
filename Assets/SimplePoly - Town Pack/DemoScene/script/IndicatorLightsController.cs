@@ -24,7 +24,8 @@ public class IndicatorLightsController : MonoBehaviour
     }
 
     public void TurnRight(){
-        if(rightIndicatorOn){
+        Debug.Log("TurnRight called. Current state: " + rightIndicatorOn);
+        if (rightIndicatorOn){
             rightIndicator.SetActive(false); // Set the parent inactive
             foreach (Transform child in rightIndicator.transform) {
                 child.gameObject.SetActive(false); // Set each immediate child inactive
@@ -41,7 +42,8 @@ public class IndicatorLightsController : MonoBehaviour
     }
 
     public void TurnLeft(){
-        if(leftIndicatorOn){
+        Debug.Log("TurnLeft called. Current state: " + leftIndicatorOn);
+        if (leftIndicatorOn){
             leftIndicator.SetActive(false);
             foreach (Transform child in leftIndicator.transform) {
                 child.gameObject.SetActive(false);

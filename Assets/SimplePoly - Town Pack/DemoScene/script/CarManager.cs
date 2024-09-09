@@ -65,7 +65,7 @@ namespace MyNamespace
         public float maxNeedleRotation;
         public int currentGear;
 
-       
+
 
         public float[] gearRatios;
         public float differentialRatio;
@@ -95,7 +95,7 @@ namespace MyNamespace
         public float reverseSpeed = 5.0f; // adjust this value to your liking
         public float forwardSpeed = 20.0f; // adjust this value to your liking
         public float brakingForce = 10.0f; // adjust this value to your liking
-       
+
         void Start()
         {
             RB.centerOfMass = CenterOfMass.transform.localPosition;
@@ -125,13 +125,13 @@ namespace MyNamespace
             rpmText.text = speedKMH.ToString("0.0") + " km/h";
             gearText.text = (gearState == GearState.Neutral) ? "N" : (currentGear + 1).ToString();
 
-            
+
 
             speedKMH = RB.velocity.magnitude * 3.6f;
             speedClamped = Mathf.Lerp(speedClamped, speedKMH, Time.deltaTime);
 
             // Update interior speedometer
-           
+
 
             CheckInputs();
             ApplyMotor();
@@ -190,22 +190,22 @@ namespace MyNamespace
             CheckInputs(out fuelInput, out brakeInput);
 
             if (fuelInput > 0.0f)
-                {
-                    Accelerate(fuelInput);
-                }
-                else if (brakeInput > 0.0f)
-                {
-                    Brake(brakeInput);
-                }
-                else if (fuelInput < 0.0f)
-                {
-                    Reverse(-fuelInput);
-                }
-                else
-                {
-                    SlowDown();
-                }
-            
+            {
+                Accelerate(fuelInput);
+            }
+            else if (brakeInput > 0.0f)
+            {
+                Brake(brakeInput);
+            }
+            else if (fuelInput < 0.0f)
+            {
+                Reverse(-fuelInput);
+            }
+            else
+            {
+                SlowDown();
+            }
+
 
             void Accelerate(float input)
             {
@@ -387,8 +387,8 @@ namespace MyNamespace
             }
         }
 
-        
-    
+
+
 
 
         IEnumerator ChangeGear(int gearChange)
@@ -433,7 +433,7 @@ namespace MyNamespace
         //    RRWheelCollider.brakeTorque = BrakeInput * BrakePower * .3f;
         //}
 
-        
+
         //void ActivateLights()
         //{
         //    // Add your lights activation logic here
