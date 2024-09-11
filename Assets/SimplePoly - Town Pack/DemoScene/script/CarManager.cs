@@ -4,14 +4,16 @@ using UnityEngine;
 using TMPro;
 using SimpleInputNamespace;
 using UnityEngine.EventSystems;
-
+using UnityEngine.UI;
 public enum GearState
 {
+    Park,
     Neutral,
     Running,
+    Drive,
+    Reverse,
     CheckingChange,
-    Changing,
-    Reverse
+    Changing
 }
 
 namespace MyNamespace
@@ -96,12 +98,48 @@ namespace MyNamespace
         public float forwardSpeed = 20.0f; // adjust this value to your liking
         public float brakingForce = 10.0f; // adjust this value to your liking
 
+        public Button parkButton;
+        public Button neutralButton;
+        public Button driveButton;
+        public Button reverseButton;
+
         void Start()
         {
             RB.centerOfMass = CenterOfMass.transform.localPosition;
             RB = GetComponent<Rigidbody>();
             Cursor.visible = true;
             RB.centerOfMass = new Vector3(0, -0.9f, 0);  // Adjust the Y-value lower to make the car more stable.
+
+            parkButton.onClick.AddListener(ParkGear);
+            neutralButton.onClick.AddListener(NeutralGear);
+            driveButton.onClick.AddListener(DriveGear);
+            reverseButton.onClick.AddListener(ReverseGear);
+        }
+        public void ParkGear()
+        {
+            gearState = GearState.Park;
+            currentGear = 0;
+            // Stop the car
+            RB.velocity = Vector3.zero;
+        }
+
+        public void NeutralGear()
+        {
+            gearState = GearState.Neutral;
+            currentGear = 0;
+            // Apply brakes to stop the car gradually
+            ApplyBrakes();
+        }
+        public void DriveGear()
+        {
+            gearState = GearState.Drive;
+            currentGear = 1;
+        }
+
+        public void ReverseGear()
+        {
+            gearState = GearState.Reverse;
+            currentGear = -1;
         }
 
         public void Steer(float steerAngle)
@@ -206,49 +244,63 @@ namespace MyNamespace
                 SlowDown();
             }
 
-
-            void Accelerate(float input)
+            if (gearState == GearState.Park || gearState == GearState.Neutral)
             {
-                // Apply a force in the direction of the car's forward direction
-                RB.AddForce(transform.forward * accelerationForce * input, ForceMode.Acceleration);
-
-                // Limit the forward speed
-                if (RB.velocity.magnitude > forwardSpeed)
-                {
-                    RB.velocity = Vector3.ClampMagnitude(RB.velocity, forwardSpeed);
-                }
-            }
-
-            void Brake(float input)
-            {
-                // Apply a force in the opposite direction of the car's velocity
-                RB.AddForce(-RB.velocity.normalized * brakingForce * input, ForceMode.Acceleration);
-
-                // Limit the forward speed
-                if (RB.velocity.magnitude > forwardSpeed)
-                {
-                    RB.velocity = Vector3.ClampMagnitude(RB.velocity, forwardSpeed);
-                }
-            }
-
-            void Reverse(float input)
-            {
-                // Apply a force in the opposite direction of the car's forward direction
-                RB.AddForce(-transform.forward * accelerationForce * input, ForceMode.Acceleration);
-
-                // Limit the reverse speed
-                if (RB.velocity.magnitude > reverseSpeed)
-                {
-                    RB.velocity = Vector3.ClampMagnitude(RB.velocity, reverseSpeed);
-                }
-            }
-
-            void SlowDown()
-            {
-                // Apply a force in the opposite direction of the car's velocity
-                RB.AddForce(-RB.velocity.normalized * brakingForce, ForceMode.Acceleration);
+                // When in Park or Neutral, apply brakes and do not apply motor torque
+                ApplyBrakes();
+                return; // Exit FixedUpdate early
             }
         }
+
+
+
+        public void Accelerate(float input)
+        {
+            // Apply a force in the direction of the car's forward direction
+            RB.AddForce(transform.forward * accelerationForce * input, ForceMode.Acceleration);
+
+            // Limit the forward speed
+            if (RB.velocity.magnitude > forwardSpeed)
+            {
+                RB.velocity = Vector3.ClampMagnitude(RB.velocity, forwardSpeed);
+            }
+        }
+
+        public void Brake(float input)
+        {
+            // Apply a force in the opposite direction of the car's velocity
+            RB.AddForce(-RB.velocity.normalized * brakingForce * input, ForceMode.Acceleration);
+
+            // Limit the forward speed
+            if (RB.velocity.magnitude > forwardSpeed)
+            {
+                RB.velocity = Vector3.ClampMagnitude(RB.velocity, forwardSpeed);
+            }
+        }
+
+        public void Reverse(float input)
+        {
+            // Apply a force in the opposite direction of the car's forward direction
+            RB.AddForce(-transform.forward * accelerationForce * input, ForceMode.Acceleration);
+
+            // Limit the reverse speed
+            if (RB.velocity.magnitude > reverseSpeed)
+            {
+                RB.velocity = Vector3.ClampMagnitude(RB.velocity, reverseSpeed);
+            }
+        }
+
+        public void SlowDown()
+        {
+            // Apply a force in the opposite direction of the car's velocity
+            RB.AddForce(-RB.velocity.normalized * brakingForce, ForceMode.Acceleration);
+        }
+        public void Idle()
+        {
+            // Implement idling logic here
+            Debug.Log("Idling");
+        }
+
 
         float doubleClickTime = 0.5f; // Time in seconds to consider a double click
         float lastBrakePressTime = 0f;
@@ -263,16 +315,18 @@ namespace MyNamespace
 
             if (brakePedal.isPressed)
             {
-                FuelInput -= brakePedal.dampenPress;
-
-                // Check for double click
-                float currentTime = Time.time;
-                if (currentTime - lastBrakePressTime < doubleClickTime)
-                {
-                    // Double click detected, apply emergency brake
-                    FuelInput = -1f; // Set FuelInput to maximum braking value
-                }
-                lastBrakePressTime = currentTime;
+                // Override fuel input with 0 when brake pedal is pressed
+                FuelInput = 0;
+                // Use brake pedal dampenPress to adjust braking force
+                BrakeInput = brakePedal.dampenPress;
+                //// Check for double click
+                //float currentTime = Time.time;
+                //if (currentTime - lastBrakePressTime < doubleClickTime)
+                //{
+                //    // Double click detected, apply emergency brake
+                //    FuelInput = -1f; // Set FuelInput to maximum braking value
+                //}
+                //lastBrakePressTime = currentTime;
             }
 
 
@@ -282,6 +336,28 @@ namespace MyNamespace
             SteeringInput *= steeringSensitivity;
 
             float MoveDir = Vector3.Dot(transform.forward, RB.velocity);
+
+            // Add gear shifting logic
+            //if (parkButton.isPressed) // Park gear
+            //{
+            //    gearState = GearState.Park;
+            //    currentGear = 0;
+            //}
+            //else if (neutralButton.isPressed) // Neutral gear
+            //{
+            //    gearState = GearState.Neutral;
+            //    currentGear = 0;
+            //}
+            //else if (driveButton.isPressed) // Drive gear
+            //{
+            //    gearState = GearState.Drive;
+            //    currentGear = 1;
+            //}
+            //else if (reverseButton.isPressed) // Reverse gear
+            //{
+            //    gearState = GearState.Reverse;
+            //    currentGear = -1;
+            //}
 
             if (gearState != GearState.Changing)
             {
@@ -321,10 +397,22 @@ namespace MyNamespace
         public void ApplyMotor()
         {
             currentTorque = CalculateTorque();
-            RLWheelCollider.motorTorque = FuelInput * MotorPower;
-            RRWheelCollider.motorTorque = FuelInput * MotorPower;
+            if (gearState == GearState.Drive)
+            {
+                RLWheelCollider.motorTorque = FuelInput * MotorPower;
+                RRWheelCollider.motorTorque = FuelInput * MotorPower;
+            }
+            else if (gearState == GearState.Reverse)
+            {
+                RLWheelCollider.motorTorque = -FuelInput * MotorPower;
+                RRWheelCollider.motorTorque = -FuelInput * MotorPower;
+            }
+            else
+            {
+                RLWheelCollider.motorTorque = 0;
+                RRWheelCollider.motorTorque = 0;
+            }
         }
-
         float CalculateTorque()
         {
             float torque = 0;
@@ -355,11 +443,27 @@ namespace MyNamespace
 
         void ApplyBrakes()
         {
-            BrakeInput = Mathf.Clamp01(BrakeInput);
-            FLWheelCollider.brakeTorque = BrakeInput * BrakePower;
-            FRWheelCollider.brakeTorque = BrakeInput * BrakePower;
-            RLWheelCollider.brakeTorque = BrakeInput * BrakePower;
-            RRWheelCollider.brakeTorque = BrakeInput * BrakePower;
+            if (gearState == GearState.Park || gearState == GearState.Neutral)
+            {
+                BrakeInput = 1.0f; // Ensure full braking force is applied
+            }
+            else
+            {
+                BrakeInput = Mathf.Clamp01(BrakeInput);
+            }
+            
+                FLWheelCollider.brakeTorque = BrakeInput * BrakePower;
+                FRWheelCollider.brakeTorque = BrakeInput * BrakePower;
+                RLWheelCollider.brakeTorque = BrakeInput * BrakePower;
+                RRWheelCollider.brakeTorque = BrakeInput * BrakePower;
+            
+            //else
+            //{
+            //    FLWheelCollider.brakeTorque = 0;
+            //    FRWheelCollider.brakeTorque = 0;
+            //    RLWheelCollider.brakeTorque = 0;
+            //    RRWheelCollider.brakeTorque = 0;
+            //}
         }
 
         void UpdateWheel()
@@ -386,9 +490,6 @@ namespace MyNamespace
                 // Logic to activate lights
             }
         }
-
-
-
 
 
         IEnumerator ChangeGear(int gearChange)
