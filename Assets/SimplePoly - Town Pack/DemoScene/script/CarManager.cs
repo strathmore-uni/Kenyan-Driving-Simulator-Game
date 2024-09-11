@@ -103,6 +103,9 @@ namespace MyNamespace
         public Button driveButton;
         public Button reverseButton;
 
+        private Light brakeLight; 
+        private Light reverseLight; 
+
         void Start()
         {
             RB.centerOfMass = CenterOfMass.transform.localPosition;
@@ -114,6 +117,10 @@ namespace MyNamespace
             neutralButton.onClick.AddListener(NeutralGear);
             driveButton.onClick.AddListener(DriveGear);
             reverseButton.onClick.AddListener(ReverseGear);
+
+            // Ensure lights are off initially
+            brakeLight.enabled = false;
+            reverseLight.enabled = false;
         }
         public void ParkGear()
         {
@@ -121,25 +128,30 @@ namespace MyNamespace
             currentGear = 0;
             // Stop the car
             RB.velocity = Vector3.zero;
+            ApplyBrakes(); // Ensure brakes are applied when parked
         }
 
         public void NeutralGear()
         {
             gearState = GearState.Neutral;
             currentGear = 0;
-            // Apply brakes to stop the car gradually
-            ApplyBrakes();
+            RB.velocity = Vector3.zero;         // Stop linear movement
+            RB.angularVelocity = Vector3.zero;  // Stop rotational movement
+            ApplyBrakes(); // Optionally apply brakes
         }
+
         public void DriveGear()
         {
             gearState = GearState.Drive;
             currentGear = 1;
+            reverseLight.enabled = false; // Ensure reverse light is off when in drive
         }
 
         public void ReverseGear()
         {
             gearState = GearState.Reverse;
             currentGear = -1;
+            /*reverseLight.enabled = true;*/ // Ensure reverse light is on when in reverse
         }
 
         public void Steer(float steerAngle)
@@ -227,42 +239,59 @@ namespace MyNamespace
             float brakeInput;
             CheckInputs(out fuelInput, out brakeInput);
 
-            if (fuelInput > 0.0f)
-            {
-                Accelerate(fuelInput);
-            }
-            else if (brakeInput > 0.0f)
-            {
-                Brake(brakeInput);
-            }
-            else if (fuelInput < 0.0f)
-            {
-                Reverse(-fuelInput);
-            }
-            else
-            {
-                SlowDown();
-            }
-
             if (gearState == GearState.Park || gearState == GearState.Neutral)
             {
                 // When in Park or Neutral, apply brakes and do not apply motor torque
                 ApplyBrakes();
                 return; // Exit FixedUpdate early
             }
-        }
 
+           if (gearState == GearState.Drive && fuelInput > 0.0f)
+           {
+                Accelerate(fuelInput);
+           }
+    
+            // Reverse mode
+            if (gearState == GearState.Reverse && fuelInput < 0.0f)
+            {
+
+                Reverse(fuelInput);
+            }
+    
+
+            else
+            {
+                SlowDown();
+            }
+
+            if (brakeInput > 0.0f)
+            {
+                ApplyBrakes(); // Apply brakes when brake input is detected
+            }
+            else
+            {
+                // If no brake input, apply brakes based on gear state
+                if (gearState == GearState.Park || gearState == GearState.Neutral)
+                {
+                    ApplyBrakes(); // Gradually stop the car
+                    return; // Exit early to prevent force application
+                }
+
+            }
+        }
 
 
         public void Accelerate(float input)
         {
-            // Apply a force in the direction of the car's forward direction
-            RB.AddForce(transform.forward * accelerationForce * input, ForceMode.Acceleration);
+            if (gearState == GearState.Drive)
+            {   // Apply a force in the direction of the car's forward direction
+                RB.AddForce(transform.forward * accelerationForce * input, ForceMode.Acceleration);
 
-            // Limit the forward speed
-            if (RB.velocity.magnitude > forwardSpeed)
-            {
-                RB.velocity = Vector3.ClampMagnitude(RB.velocity, forwardSpeed);
+                // Limit the forward speed
+                if (RB.velocity.magnitude > forwardSpeed)
+                {
+                    RB.velocity = Vector3.ClampMagnitude(RB.velocity, forwardSpeed);
+                }
             }
         }
 
@@ -280,15 +309,25 @@ namespace MyNamespace
 
         public void Reverse(float input)
         {
-            // Apply a force in the opposite direction of the car's forward direction
-            RB.AddForce(-transform.forward * accelerationForce * input, ForceMode.Acceleration);
-
-            // Limit the reverse speed
-            if (RB.velocity.magnitude > reverseSpeed)
+            if (gearState == GearState.Reverse)
             {
-                RB.velocity = Vector3.ClampMagnitude(RB.velocity, reverseSpeed);
+                // Apply reverse force
+                RB.AddForce(-RB.velocity.normalized * accelerationForce * input, ForceMode.Acceleration);
+
+                // Limit the reverse speed
+                if (RB.velocity.magnitude > reverseSpeed)
+                {
+                    RB.velocity = Vector3.ClampMagnitude(RB.velocity, reverseSpeed);
+                }
             }
         }
+            void Neutral()
+        {
+            // Optionally, apply friction or damping to stop the car
+            RB.velocity = Vector3.zero;
+            RB.angularVelocity = Vector3.zero;
+        }
+
 
         public void SlowDown()
         {
@@ -310,15 +349,17 @@ namespace MyNamespace
             FuelInput = SimpleInput.GetAxis("Vertical");
             if (gasPedal.isPressed)
             {
-                FuelInput += gasPedal.dampenPress;
-            }
+                if (gearState == GearState.Drive)
+                {
+                    FuelInput = Mathf.Clamp(gasPedal.dampenPress, 0, 1);
+                }
+                else if (gearState == GearState.Reverse)
+                {
+                    FuelInput = Mathf.Clamp(gasPedal.dampenPress, -1, 0);
+                }
 
-            if (brakePedal.isPressed)
-            {
-                // Override fuel input with 0 when brake pedal is pressed
-                FuelInput = 0;
-                // Use brake pedal dampenPress to adjust braking force
-                BrakeInput = brakePedal.dampenPress;
+
+
                 //// Check for double click
                 //float currentTime = Time.time;
                 //if (currentTime - lastBrakePressTime < doubleClickTime)
@@ -327,6 +368,15 @@ namespace MyNamespace
                 //    FuelInput = -1f; // Set FuelInput to maximum braking value
                 //}
                 //lastBrakePressTime = currentTime;
+            }
+            if (brakePedal.isPressed)
+            {
+                // Apply brakes based on brake pedal input
+                BrakeInput = 1.0f; // Full braking force
+            }
+            else
+            {
+                BrakeInput = 0.0f; // No braking force
             }
 
 
@@ -359,33 +409,33 @@ namespace MyNamespace
             //    currentGear = -1;
             //}
 
-            if (gearState != GearState.Changing)
-            {
-                if (gearState == GearState.Neutral)
-                {
-                    clutch = 0;
-                    if (Mathf.Abs(FuelInput) > 0) gearState = GearState.Running;
-                }
-                else
-                {
-                    clutch = Input.acceleration.y > 0.5f ? 0 : Mathf.Lerp(clutch, 1, Time.deltaTime);
-                }
-            }
-            else
+            if (gearState == GearState.Neutral)
             {
                 clutch = 0;
-            }
-            if (MoveDir < -0.5f && FuelInput > 0)
-            {
-                BrakeInput = Mathf.Abs(FuelInput);
-            }
-            else if (MoveDir > 0.5f && FuelInput < 0)
-            {
-                BrakeInput = Mathf.Abs(FuelInput);
+                if (Mathf.Abs(FuelInput) > 0)
+                {
+                    gearState = GearState.Drive; // Or Reverse, depending on your logic
+                }
             }
             else
             {
-                BrakeInput = 0;
+                clutch = Input.acceleration.y > 0.5f ? 0 : Mathf.Lerp(clutch, 1, Time.deltaTime);
+            }
+
+            // Apply brake force based on fuel input and movement direction
+            if (gearState == GearState.Drive && RB.velocity.magnitude > 0)
+            {
+                if (FuelInput < 0)
+                {
+                    BrakeInput = Mathf.Abs(FuelInput); // Apply brakes if moving forward and trying to reverse
+                }
+            }
+            else if (gearState == GearState.Reverse && RB.velocity.magnitude > 0)
+            {
+                if (FuelInput > 0)
+                {
+                    BrakeInput = Mathf.Abs(FuelInput); // Apply brakes if moving backward and trying to accelerate
+                }
             }
         }
         public float GetSpeedRatio()
@@ -443,20 +493,14 @@ namespace MyNamespace
 
         void ApplyBrakes()
         {
-            if (gearState == GearState.Park || gearState == GearState.Neutral)
-            {
-                BrakeInput = 1.0f; // Ensure full braking force is applied
-            }
-            else
-            {
-                BrakeInput = Mathf.Clamp01(BrakeInput);
-            }
-            
-                FLWheelCollider.brakeTorque = BrakeInput * BrakePower;
-                FRWheelCollider.brakeTorque = BrakeInput * BrakePower;
-                RLWheelCollider.brakeTorque = BrakeInput * BrakePower;
-                RRWheelCollider.brakeTorque = BrakeInput * BrakePower;
-            
+            // Apply brakes to all wheels
+            FLWheelCollider.brakeTorque = BrakeInput * BrakePower;
+            FRWheelCollider.brakeTorque = BrakeInput * BrakePower;
+            RLWheelCollider.brakeTorque = BrakeInput * BrakePower;
+            RRWheelCollider.brakeTorque = BrakeInput * BrakePower;
+
+            // Turn on the brake light when braking
+            brakeLight.enabled = BrakeInput > 0;
             //else
             //{
             //    FLWheelCollider.brakeTorque = 0;
