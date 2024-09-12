@@ -103,8 +103,7 @@ namespace MyNamespace
         public Button driveButton;
         public Button reverseButton;
 
-        private Light brakeLight; 
-        private Light reverseLight; 
+        
 
         void Start()
         {
@@ -119,8 +118,7 @@ namespace MyNamespace
             reverseButton.onClick.AddListener(ReverseGear);
 
             // Ensure lights are off initially
-            brakeLight.enabled = false;
-            reverseLight.enabled = false;
+            
         }
         public void ParkGear()
         {
@@ -144,7 +142,6 @@ namespace MyNamespace
         {
             gearState = GearState.Drive;
             currentGear = 1;
-            reverseLight.enabled = false; // Ensure reverse light is off when in drive
         }
 
         public void ReverseGear()
@@ -500,7 +497,7 @@ namespace MyNamespace
             RRWheelCollider.brakeTorque = BrakeInput * BrakePower;
 
             // Turn on the brake light when braking
-            brakeLight.enabled = BrakeInput > 0;
+            
             //else
             //{
             //    FLWheelCollider.brakeTorque = 0;
