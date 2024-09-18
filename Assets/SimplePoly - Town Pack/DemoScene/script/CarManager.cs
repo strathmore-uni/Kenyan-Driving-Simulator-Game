@@ -108,7 +108,7 @@ namespace MyNamespace
         public float slowSpeed = 5f;     // Speed when moving slowly when the gas pedal is not pressed
         public float acceleration = 5f;  // Acceleration rate
         public float deceleration = 5f;  // Deceleration rate
-
+        public float brakeForce = 5.0f;
         void Start()
         {
             RB.centerOfMass = CenterOfMass.transform.localPosition;
@@ -176,10 +176,11 @@ namespace MyNamespace
             rpmText.text = speedKMH.ToString("0.0") + " km/h";
             gearText.text = (gearState == GearState.Neutral) ? "N" : (currentGear + 1).ToString();
 
-
+        
 
             speedKMH = RB.velocity.magnitude * 3.6f;
-            speedClamped = Mathf.Lerp(speedClamped, speedKMH, Time.deltaTime);
+            speedKMH = Mathf.Lerp(speedKMH, RB.velocity.magnitude * 3.6f, Time.deltaTime * 10f);
+
 
             // Update interior speedometer
 
@@ -191,7 +192,7 @@ namespace MyNamespace
             ApplyBrakes();
             Brake(BrakeInput);
             HandleMovement();
-
+            HandleBraking();
             // Debug logs to check input
             Debug.Log($"Steering Input: {SimpleInput.GetAxis("Horizontal")}");
 
@@ -261,11 +262,11 @@ namespace MyNamespace
             else
             {
                 // Adjust acceleration and deceleration
-                if (gearState == GearState.Drive && fuelInput > 0.0f)
+                if (gearState == GearState.Drive && SimpleInput.GetAxis("GasPedal") > 0)
                 {
                     Accelerate(fuelInput);
                 }
-                else if (gearState == GearState.Reverse && fuelInput < 0.0f)
+                else if (gearState == GearState.Reverse && SimpleInput.GetAxis("GasPedal") < 0)
                 {
                     Reverse(fuelInput);
                 }
@@ -306,6 +307,7 @@ namespace MyNamespace
             {
                 // Gradually reduce the velocity to zero based on brakeForce
                 RB.velocity = Vector3.Lerp(RB.velocity, Vector3.zero, brakeForce * Time.deltaTime);
+
             }
         }
 
@@ -411,7 +413,18 @@ namespace MyNamespace
         }
 
 
+        void HandleBraking()
+        {
+            if (BrakeInput > 0)
+            {
+                // Immediately set the car's velocity to zero
+                RB.velocity = Vector3.zero;
 
+                // Apply angular damping to stabilize the car's rotation
+                float angularDamping = 5.0f;
+                RB.AddTorque(-RB.angularVelocity * angularDamping, ForceMode.Acceleration);
+            }
+        }
 
         void ResetCarMovement()
         {
@@ -419,8 +432,8 @@ namespace MyNamespace
             RB.velocity = Vector3.zero;
         }
 
-        float doubleClickTime = 0.5f; // Time in seconds to consider a double click
-        float lastBrakePressTime = 0f;
+        //float doubleClickTime = 0.5f; // Time in seconds to consider a double click
+        //float lastBrakePressTime = 0f;
 
         void CheckInputs()
         {
@@ -585,11 +598,19 @@ namespace MyNamespace
 
         void ApplyBrakes()
         {
+            
+                BrakeInput = Mathf.Clamp01(BrakeInput);
+                FLWheelCollider.brakeTorque = BrakeInput * BrakePower;
+                FRWheelCollider.brakeTorque = BrakeInput * BrakePower;
+                RLWheelCollider.brakeTorque = BrakeInput * BrakePower;
+                RRWheelCollider.brakeTorque = BrakeInput * BrakePower;
+            
+
             // Apply brakes to all wheels
-            FLWheelCollider.brakeTorque = BrakeInput * BrakePower;
-            FRWheelCollider.brakeTorque = BrakeInput * BrakePower;
-            RLWheelCollider.brakeTorque = BrakeInput * BrakePower;
-            RRWheelCollider.brakeTorque = BrakeInput * BrakePower;
+            //FLWheelCollider.brakeTorque = BrakeInput * BrakePower;
+            //FRWheelCollider.brakeTorque = BrakeInput * BrakePower;
+            //RLWheelCollider.brakeTorque = BrakeInput * BrakePower;
+            //RRWheelCollider.brakeTorque = BrakeInput * BrakePower;
 
             // Turn on the brake light when braking
 
