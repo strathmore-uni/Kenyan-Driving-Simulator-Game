@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using SimpleInputNamespace;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public enum GearState
 {
@@ -11,7 +12,10 @@ public enum GearState
     Running,
     CheckingChange,
     Changing,
+    Park,
+    Drive,
     Reverse
+    
 }
 
 namespace MyNamespace
@@ -96,12 +100,24 @@ namespace MyNamespace
         public float forwardSpeed = 20.0f; // adjust this value to your liking
         public float brakingForce = 10.0f; // adjust this value to your liking
 
+        public Button parkButton;
+        public Button neutralButton;
+        public Button driveButton;
+        public Button reverseButton;
+        public GameObject reverseLight;
         void Start()
         {
             RB.centerOfMass = CenterOfMass.transform.localPosition;
             RB = GetComponent<Rigidbody>();
             Cursor.visible = true;
             RB.centerOfMass = new Vector3(0, -0.9f, 0);  // Adjust the Y-value lower to make the car more stable.
+
+
+            // Add listeners to buttons
+            parkButton.onClick.AddListener(ShiftToPark);
+            neutralButton.onClick.AddListener(ShiftToNeutral);
+            driveButton.onClick.AddListener(ShiftToDrive);
+            reverseButton.onClick.AddListener(ShiftToReverse);
         }
 
         public void Steer(float steerAngle)
@@ -155,6 +171,29 @@ namespace MyNamespace
             ApplySteering(currentSteerAngle);
         }
 
+        public void ShiftToPark()
+        {
+            gearState = GearState.Park;
+            RB.velocity = Vector3.zero; // Stop the car when shifted to Park
+        }
+
+        public void ShiftToNeutral()
+        {
+            gearState = GearState.Neutral;
+            RB.velocity = Vector3.zero; // Stop the car when shifting to Neutral
+        }
+
+        public void ShiftToDrive()
+        {
+            gearState = GearState.Drive;
+        }
+
+        public void ShiftToReverse()
+        {
+            gearState = GearState.Reverse;
+            reverseLight.SetActive(true); // Turn on reverse light
+        }
+
         void Move(float direction)
         {
             // Example of moving the car
@@ -177,13 +216,29 @@ namespace MyNamespace
             // Your input checking logic here
             fuelInput = SimpleInput.GetAxis("Vertical");
             brakeInput = SimpleInput.GetAxis("Brake");
+
+            switch (gearState)
+            {
+                case GearState.Park:
+                    FuelInput = 0; // No movement in park
+                    break;
+                case GearState.Neutral:
+                    // Allow free movement without driving
+                    break;
+                case GearState.Drive:
+                    if (FuelInput < 0) FuelInput = 0; // Prevent reversing in drive
+                    break;
+                case GearState.Reverse:
+                    if (FuelInput > 0) FuelInput = 0; // Prevent forward movement in reverse
+                    break;
+            }
         }
 
         void FixedUpdate()
         {
             ActivateLights();
             animatorTurnAngle = Mathf.Lerp(animatorTurnAngle, -SimpleInput.GetAxis("Horizontal"), 28f * Time.deltaTime);
-            charAnim.SetFloat("turnAngle", animatorTurnAngle);
+            //charAnim.SetFloat("turnAngle", animatorTurnAngle);
 
             float fuelInput;
             float brakeInput;
@@ -263,18 +318,15 @@ namespace MyNamespace
 
             if (brakePedal.isPressed)
             {
-                FuelInput -= brakePedal.dampenPress;
+                // Apply brakes based on brake pedal input
+                BrakeInput = 1.0f; // Full braking force
 
-                // Check for double click
-                float currentTime = Time.time;
-                if (currentTime - lastBrakePressTime < doubleClickTime)
-                {
-                    // Double click detected, apply emergency brake
-                    FuelInput = -1f; // Set FuelInput to maximum braking value
-                }
-                lastBrakePressTime = currentTime;
+                
             }
-
+            else
+            {
+                BrakeInput = 0.0f; // No braking force
+            }
 
             SteeringInput = SimpleInput.GetAxis("Horizontal");
 
@@ -320,9 +372,23 @@ namespace MyNamespace
 
         public void ApplyMotor()
         {
-            currentTorque = CalculateTorque();
-            RLWheelCollider.motorTorque = FuelInput * MotorPower;
-            RRWheelCollider.motorTorque = FuelInput * MotorPower;
+            // Apply motor torque based on gear state
+            if (gearState == GearState.Drive)
+            {
+                FLWheelCollider.motorTorque = FuelInput * MotorPower;
+                FRWheelCollider.motorTorque = FuelInput * MotorPower;
+            }
+            else if (gearState == GearState.Reverse)
+            {
+                FLWheelCollider.motorTorque = -FuelInput * MotorPower; // Use negative torque for reverse
+                FRWheelCollider.motorTorque = -FuelInput * MotorPower; // Use negative torque for reverse
+            }
+            else
+            {
+                // Ensure motor torque is zero when in Neutral or Park
+                FLWheelCollider.motorTorque = 0;
+                FRWheelCollider.motorTorque = 0;
+            }
         }
 
         float CalculateTorque()
@@ -355,11 +421,22 @@ namespace MyNamespace
 
         void ApplyBrakes()
         {
-            BrakeInput = Mathf.Clamp01(BrakeInput);
-            FLWheelCollider.brakeTorque = BrakeInput * BrakePower;
-            FRWheelCollider.brakeTorque = BrakeInput * BrakePower;
-            RLWheelCollider.brakeTorque = BrakeInput * BrakePower;
-            RRWheelCollider.brakeTorque = BrakeInput * BrakePower;
+            if (BrakeInput > 0)
+            {
+                // Apply brake torque to each wheel collider
+                FLWheelCollider.brakeTorque = BrakeInput * brakingForce;
+                FRWheelCollider.brakeTorque = BrakeInput * brakingForce;
+                RLWheelCollider.brakeTorque = BrakeInput * brakingForce;
+                RRWheelCollider.brakeTorque = BrakeInput * brakingForce;
+            }
+            else
+            {
+                // Remove brake torque when not braking
+                FLWheelCollider.brakeTorque = 0;
+                FRWheelCollider.brakeTorque = 0;
+                RLWheelCollider.brakeTorque = 0;
+                RRWheelCollider.brakeTorque = 0;
+            }
         }
 
         void UpdateWheel()
