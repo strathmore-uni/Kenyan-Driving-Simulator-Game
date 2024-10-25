@@ -40,6 +40,17 @@ public class ParkingCar : MonoBehaviour
     {
         FailedPanel.SetActive(show);
     }
+    // Add this method to your ParkingCar script
+    public void ResetToDrivingMode()
+    {
+        ShowPassPanel(false);
+        // Reset any other necessary car parameters, like speed or state
+    }
+
+    public void OnClosePassPanelButtonClick()
+    {
+        ResetToDrivingMode();
+    }
 
     public bool CheckCollision(ParkingLot lot)
     {

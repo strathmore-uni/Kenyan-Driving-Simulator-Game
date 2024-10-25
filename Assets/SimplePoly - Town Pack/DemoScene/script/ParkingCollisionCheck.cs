@@ -12,17 +12,11 @@ public class ParkingCollisionCheck : MonoBehaviour
     private float countdownTimer;
     private bool isCountdownActive = false;
 
-    public bool enableDebugVisualization = true; // Toggle for debug visualization
-
     void Start()
     {
-        // Ensure FailedPanel and PassedPanel are inactive at the start
+        // Ensure panels are inactive at the start
         car.ShowFailedPanel(false);
         car.ShowPassPanel(false);
-
-        // Initialize the countdown timer
-        countdownTimer = countdownTime;
-        countdownText.gameObject.SetActive(false);
     }
 
     void Update()
@@ -39,16 +33,13 @@ public class ParkingCollisionCheck : MonoBehaviour
         else
         {
             Debug.Log("No collision detected. Car is within parking lot boundaries.");
-            if (!isCountdownActive)
+            if (!isCountdownActive && countdownTimer > 0) // Prevent starting a new countdown if already completed
             {
                 StartCountdown();
             }
         }
 
-        if (enableDebugVisualization)
-        {
-            VisualizeCollision(car, lot);
-        }
+       
 
         // Update the countdown timer if it's active
         if (isCountdownActive)
@@ -58,7 +49,7 @@ public class ParkingCollisionCheck : MonoBehaviour
 
             if (countdownTimer <= 0)
             {
-                car.ShowPassPanel(true);
+                car.ShowPassPanel(true); // Show pass panel when countdown completes
                 countdownText.gameObject.SetActive(false);
                 isCountdownActive = false; // Stop the countdown
             }
@@ -77,34 +68,6 @@ public class ParkingCollisionCheck : MonoBehaviour
         countdownTimer = countdownTime;
         countdownText.gameObject.SetActive(false);
         isCountdownActive = false;
-    }
-
-    void VisualizeCollision(ParkingCar car, ParkingLot lot)
-    {
-        // Calculate half width and length vectors based on car dimensions
-        var halfWidthVector = car.transform.right * car.width * 0.5f;
-        var halfLengthVector = car.transform.forward * car.length * 0.5f;
-
-        // Determine the corners of the car
-        var a = car.transform.position + halfWidthVector + halfLengthVector;
-        var b = car.transform.position - halfWidthVector + halfLengthVector;
-        var c = car.transform.position + halfWidthVector - halfLengthVector;
-        var d = car.transform.position - halfWidthVector - halfLengthVector;
-
-        // Visualize the car's AABB
-        Debug.DrawLine(a, b, Color.red);
-        Debug.DrawLine(b, d, Color.red);
-        Debug.DrawLine(d, c, Color.red);
-        Debug.DrawLine(c, a, Color.red);
-
-        // Visualize the parking lot bounds
-        Vector3 lotMin = lot.transform.position - new Vector3(lot.width * 0.5f, 0, lot.length * 0.5f);
-        Vector3 lotMax = lot.transform.position + new Vector3(lot.width * 0.5f, 0, lot.length * 0.5f);
-
-        Debug.DrawLine(lotMin, lotMin + new Vector3(lot.width, 0, 0), Color.blue);
-        Debug.DrawLine(lotMin, lotMin + new Vector3(0, 0, lot.length), Color.blue);
-        Debug.DrawLine(lotMax, lotMax - new Vector3(lot.width, 0, 0), Color.blue);
-        Debug.DrawLine(lotMax, lotMax - new Vector3(0, 0, lot.length), Color.blue);
     }
 
     private void OnCollisionEnter(Collision human)

@@ -305,8 +305,8 @@ namespace MyNamespace
             }
         }
 
-        float doubleClickTime = 0.5f; // Time in seconds to consider a double click
-        float lastBrakePressTime = 0f;
+        //float doubleClickTime = 0.5f; // Time in seconds to consider a double click
+        //float lastBrakePressTime = 0f;
 
         void CheckInputs()
         {
