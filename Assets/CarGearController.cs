@@ -1,75 +1,73 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
-public class CarGearController : MonoBehaviour
+public class GearSwitcher : MonoBehaviour
 {
-    public Button gearButton; // Reference to the button used to change gears
-    private int currentGear = 0; // 0 = Park, 1 = Drive, 2 = Reverse, 3 = Neutral
-    public float speed = 10f; // Speed of the car
-    private Rigidbody rb;
+    public Rigidbody carRigidbody; // Assign your car's Rigidbody here
+    public Slider gearSlider; // Reference to the slider
 
-    private void Start()
+    public int currentGear;   // To keep track of the current gear
+
+    // Define the gear states for clarity
+    private enum Gear
     {
-        rb = GetComponent<Rigidbody>(); // Get the Rigidbody component
-        gearButton.onClick.AddListener(CycleGear); // Add listener to the button
-        UpdateGearDisplay(); // Update display at the start
+        Park = 0,
+        Neutral = 1,
+        Reverse = 2,
+        Drive = 3
     }
 
-    private void Update()
+    void Start()
     {
-        MoveCar(); // Call the movement function
+        currentGear = (int)Gear.Park; // Initialize to Park
+        gearSlider.value = currentGear; // Set initial slider value
+        gearSlider.onValueChanged.AddListener(UpdateGear); // Add listener for slider changes
     }
 
-    private void CycleGear()
+    public void UpdateGear(float gearValue)
     {
-        currentGear = (currentGear + 1) % 4; // Cycle through 0 to 3
-        UpdateGearDisplay(); // Update button text to reflect current gear
-        Debug.Log("Gear changed to: " + currentGear); // Log gear changes
-    }
+        currentGear = Mathf.RoundToInt(gearValue); // Update current gear based on slider value
+        Debug.Log("Current Gear: " + (Gear)currentGear);
 
-    private void MoveCar()
-    {
-        switch (currentGear)
+        // If Park is selected, stop the car immediately
+        if ((Gear)currentGear == Gear.Park)
         {
-            case 1: // Drive
-                rb.MovePosition(transform.position + transform.forward * speed * Time.deltaTime);
-                break;
-            case 2: // Reverse
-                rb.MovePosition(transform.position - transform.forward * speed * Time.deltaTime);
-                break;
-            case 0: // Park
-            case 3: // Neutral
-                // No movement for Park and Neutral
-                break;
-            default:
-                break;
+            carRigidbody.velocity = Vector3.zero; // Stop movement
+            carRigidbody.angularVelocity = Vector3.zero; // Stop rotation
         }
     }
 
-    private void UpdateGearDisplay()
+    void FixedUpdate()
     {
-        // Update the button's text to reflect the current gear using TextMeshProUGUI
-        TextMeshProUGUI buttonText = gearButton.GetComponentInChildren<TextMeshProUGUI>();
-        if (buttonText != null)
+        float gasInput = SimpleInput.GetAxis("Vertical");
+        ApplyGas(gasInput);
+    }
+
+    public void ApplyGas(float gasInput)
+    {
+        Debug.Log("Gas Input: " + gasInput + " | Current Gear: " + (Gear)currentGear);
+
+        if ((Gear)currentGear == Gear.Park)
         {
-            switch (currentGear)
-            {
-                case 0:
-                    buttonText.text = "P (Park)";
-                    break;
-                case 1:
-                    buttonText.text = "D (Drive)";
-                    break;
-                case 2:
-                    buttonText.text = "R (Reverse)";
-                    break;
-                case 3:
-                    buttonText.text = "N (Neutral)";
-                    break;
-                default:
-                    break;
-            }
+            // Ensure the car does not move in Park by setting velocity to zero
+            carRigidbody.velocity = Vector3.zero;
+            carRigidbody.angularVelocity = Vector3.zero;
+            return; // Exit function, no force is applied
+        }
+        else if ((Gear)currentGear == Gear.Neutral)
+        {
+            // Let the car roll in Neutral, do not apply additional force
+            return;
+        }
+        else if ((Gear)currentGear == Gear.Reverse)
+        {
+            float force = gasInput * 10f; // Adjust reverse force as needed
+            carRigidbody.AddForce(-transform.forward * Mathf.Abs(force), ForceMode.Acceleration);
+        }
+        else if ((Gear)currentGear == Gear.Drive)
+        {
+            float force = gasInput * 10f; // Adjust drive force as needed
+            carRigidbody.AddForce(transform.forward * Mathf.Abs(force), ForceMode.Acceleration);
         }
     }
 }

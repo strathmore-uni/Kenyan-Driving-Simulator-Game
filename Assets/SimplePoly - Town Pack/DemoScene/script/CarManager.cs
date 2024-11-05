@@ -96,12 +96,21 @@ namespace MyNamespace
         public float forwardSpeed = 20.0f; // adjust this value to your liking
         public float brakingForce = 10.0f; // adjust this value to your liking
 
+        private GearSwitcher gearSwitcher;
+
+
         void Start()
         {
             RB.centerOfMass = CenterOfMass.transform.localPosition;
             RB = GetComponent<Rigidbody>();
             Cursor.visible = true;
             RB.centerOfMass = new Vector3(0, -0.9f, 0);  // Adjust the Y-value lower to make the car more stable.
+
+            gearSwitcher = GetComponent<GearSwitcher>();
+            if (gearSwitcher == null)
+            {
+                Debug.LogError("GearSwitcher component not found! Make sure it's attached to the same GameObject.");
+            }
         }
 
         public void Steer(float steerAngle)
@@ -130,7 +139,13 @@ namespace MyNamespace
             speedKMH = RB.velocity.magnitude * 3.6f;
             speedClamped = Mathf.Lerp(speedClamped, speedKMH, Time.deltaTime);
 
-            // Update interior speedometer
+            GearSwitcher gearSwitcher = GetComponent<GearSwitcher>();
+            if (gearSwitcher != null)
+            {
+                int gear = gearSwitcher.currentGear;
+                Debug.Log("Current Gear: " + gear);
+                // Use `gear` to control car behavior as needed
+            }
 
 
             CheckInputs();
@@ -204,6 +219,30 @@ namespace MyNamespace
             else
             {
                 SlowDown();
+            }
+
+            if (gearSwitcher == null) return;
+
+            float FuelInput = SimpleInput.GetAxis("Vertical");
+
+            // Check the current gear state and apply appropriate movement
+            switch (gearSwitcher.currentGear)
+            {
+                case 0: // Park
+                    ApplyBrakes();
+                    break;
+
+                case 1: // Neutral
+                        // Let the car roll without applying additional force
+                    break;
+
+                case 2: // Reverse
+                    ApplyReverse(FuelInput);
+                    break;
+
+                case 3: // Drive
+                    ApplyDrive(FuelInput);
+                    break;
             }
 
 
@@ -312,6 +351,19 @@ namespace MyNamespace
                 BrakeInput = 0;
             }
         }
+
+        private void ApplyDrive(float FuelInput)
+        {
+            float force = Mathf.Clamp(FuelInput, 0, 1) * forwardSpeed; // Only forward force
+            RB.AddForce(transform.forward * force, ForceMode.Force);
+        }
+
+        private void ApplyReverse(float FuelInput)
+        {
+            float force = Mathf.Clamp(FuelInput, -1, 0) * reverseSpeed; // Only backward force
+            RB.AddForce(transform.forward * force, ForceMode.Force);
+        }
+
         public float GetSpeedRatio()
         {
             var gas = Mathf.Clamp(Mathf.Abs(FuelInput), 0.5f, 1f);
@@ -360,7 +412,16 @@ namespace MyNamespace
             FRWheelCollider.brakeTorque = BrakeInput * BrakePower;
             RLWheelCollider.brakeTorque = BrakeInput * BrakePower;
             RRWheelCollider.brakeTorque = BrakeInput * BrakePower;
+
+            // Additional logic to stop the car completely in Park
+            if (gearSwitcher != null && gearSwitcher.currentGear == 0) // Assuming gear 0 is Park
+            {
+                RB.velocity = Vector3.zero;
+                RB.angularVelocity = Vector3.zero;
+            }
         }
+
+
 
         void UpdateWheel()
         {
