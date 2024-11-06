@@ -1,18 +1,29 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SettingPanel : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public GameObject mainMenuPanel;   // Reference to the main menu panel
+    public GameObject settingsPanel;   // Reference to the settings panel
+
     void Start()
     {
-        
+        // Ensure the main menu is visible, and settings panel is hidden at the start
+        mainMenuPanel.SetActive(true);
+        settingsPanel.SetActive(false);
     }
 
-    // Update is called once per frame
-    void Update()
+    public void OnSettingsButtonClicked()
     {
-        
+        // Show the settings panel and hide the main menu
+        mainMenuPanel.SetActive(false);
+        settingsPanel.SetActive(true);
+    }
+
+    public void OnBackButtonClicked()
+    {
+        // Hide the settings panel and show the main menu
+        settingsPanel.SetActive(false);
+        mainMenuPanel.SetActive(true);
     }
 }
