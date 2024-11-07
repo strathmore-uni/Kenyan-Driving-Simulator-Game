@@ -1,49 +1,47 @@
 using UnityEngine;
+using UnityEngine.UI;
 
-public class AudioManager : MonoBehaviour
+public class AudioSettingsManager : MonoBehaviour
 {
-    public static AudioManager instance;
+    [Header("Audio Sources")]
+    public AudioSource backgroundMusicAudioSource;  // Background music AudioSource
+    public AudioSource soundEffectsAudioSource;     // Sound effects AudioSource (engine, collision, etc.)
 
-    // Background music and sound effects audio sources
-    public AudioSource bgMusicSource;
-    public AudioSource carEngineAudioSource;
+    [Header("UI Elements")]
+    public Slider bgMusicVolumeSlider;              // Slider for background music volume
+    public Slider soundEffectsVolumeSlider;         // Slider for sound effects volume
 
-    private void Awake()
+    private void Start()
     {
-        // Ensure there's only one instance of AudioManager
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
-        DontDestroyOnLoad(gameObject);
+        // Load saved settings, defaulting to 1.0f if settings are not found
+        bgMusicVolumeSlider.value = PlayerPrefs.GetFloat("BGMusicVolume", 1.0f);
+        soundEffectsVolumeSlider.value = PlayerPrefs.GetFloat("SoundEffectsVolume", 1.0f);
+
+        // Apply loaded values to the AudioSources
+        SetBGMusicVolume(bgMusicVolumeSlider.value);
+        SetSoundEffectsVolume(soundEffectsVolumeSlider.value);
+
+        // Add listeners to update volume when slider values change
+        bgMusicVolumeSlider.onValueChanged.AddListener(SetBGMusicVolume);
+        soundEffectsVolumeSlider.onValueChanged.AddListener(SetSoundEffectsVolume);
     }
 
-    // Set background music volume
+    // Method to set background music volume and save it
     public void SetBGMusicVolume(float volume)
     {
-        bgMusicSource.volume = volume;
+        backgroundMusicAudioSource.volume = volume;
+        PlayerPrefs.SetFloat("BGMusicVolume", volume);  // Save volume setting
     }
 
-    // Set sound effects volume (like car engine)
+    // Method to set sound effects volume and save it
     public void SetSoundEffectsVolume(float volume)
     {
-        carEngineAudioSource.volume = volume;
+        soundEffectsAudioSource.volume = volume;
+        PlayerPrefs.SetFloat("SoundEffectsVolume", volume);  // Save volume setting
     }
 
-    // Mute/unmute background music
-    public void MuteBGMusic(bool mute)
+    private void OnApplicationQuit()
     {
-        bgMusicSource.mute = mute;
-    }
-
-    // Mute/unmute sound effects
-    public void MuteSoundEffects(bool mute)
-    {
-        carEngineAudioSource.mute = mute;
+        PlayerPrefs.Save();  // Ensure settings are saved when the game exits
     }
 }
