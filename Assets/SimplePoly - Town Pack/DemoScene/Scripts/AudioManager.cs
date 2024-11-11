@@ -1,47 +1,24 @@
 using UnityEngine;
+using UnityEngine.Audio; // Import the Audio namespace
 using UnityEngine.UI;
 
-public class AudioSettingsManager : MonoBehaviour
+public class AudioManager : MonoBehaviour
 {
-    [Header("Audio Sources")]
-    public AudioSource backgroundMusicAudioSource;  // Background music AudioSource
-    public AudioSource soundEffectsAudioSource;     // Sound effects AudioSource (engine, collision, etc.)
+    public Slider volumeSlider;      // Slider to control volume
+    public AudioMixer audioMixer;    // Reference to the AudioMixer
+    public string exposedParameter = "MasterVolume"; // Name of the exposed parameter in the mixer
 
-    [Header("UI Elements")]
-    public Slider bgMusicVolumeSlider;              // Slider for background music volume
-    public Slider soundEffectsVolumeSlider;         // Slider for sound effects volume
-
-    private void Start()
+    void Start()
     {
-        // Load saved settings, defaulting to 1.0f if settings are not found
-        bgMusicVolumeSlider.value = PlayerPrefs.GetFloat("BGMusicVolume", 1.0f);
-        soundEffectsVolumeSlider.value = PlayerPrefs.GetFloat("SoundEffectsVolume", 1.0f);
-
-        // Apply loaded values to the AudioSources
-        SetBGMusicVolume(bgMusicVolumeSlider.value);
-        SetSoundEffectsVolume(soundEffectsVolumeSlider.value);
-
-        // Add listeners to update volume when slider values change
-        bgMusicVolumeSlider.onValueChanged.AddListener(SetBGMusicVolume);
-        soundEffectsVolumeSlider.onValueChanged.AddListener(SetSoundEffectsVolume);
+        // Initialize the slider value to saved setting or default to max volume
+        volumeSlider.value = PlayerPrefs.GetFloat("Volume", 1f);
+        volumeSlider.onValueChanged.AddListener(SetVolume);  // Set volume when slider changes
     }
 
-    // Method to set background music volume and save it
-    public void SetBGMusicVolume(float volume)
+    // Update the volume in the AudioMixer
+    public void SetVolume(float volume)
     {
-        backgroundMusicAudioSource.volume = volume;
-        PlayerPrefs.SetFloat("BGMusicVolume", volume);  // Save volume setting
-    }
-
-    // Method to set sound effects volume and save it
-    public void SetSoundEffectsVolume(float volume)
-    {
-        soundEffectsAudioSource.volume = volume;
-        PlayerPrefs.SetFloat("SoundEffectsVolume", volume);  // Save volume setting
-    }
-
-    private void OnApplicationQuit()
-    {
-        PlayerPrefs.Save();  // Ensure settings are saved when the game exits
+        audioMixer.SetFloat(exposedParameter, Mathf.Log10(volume) * 20);  // Adjust volume in dB
+        PlayerPrefs.SetFloat("Volume", volume);  // Save setting
     }
 }

@@ -2919,6 +2919,7 @@ GameObject:
   - component: {fileID: 1143102094}
   - component: {fileID: 1143102097}
   - component: {fileID: 1143102098}
+  - component: {fileID: 1143102099}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -3027,6 +3028,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainMenuPanel: {fileID: 1748301967}
   settingsPanel: {fileID: 1700452801}
+--- !u!114 &1143102099
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1143102093}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea17bcb2135d9ee439532597c4a298ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  volumeSlider: {fileID: 1989647707}
+  audioMixer: {fileID: 24100000, guid: 19e4a2f9153a9e348bbd5415a9a443fa, type: 2}
+  exposedParameter: MasterVolume
 --- !u!1 &1165973587
 GameObject:
   m_ObjectHideFlags: 0
@@ -4467,13 +4483,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1700452801}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea17bcb2135d9ee439532597c4a298ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bgMusicSource: {fileID: 0}
-  carEngineAudioSource: {fileID: 0}
+  volumeSlider: {fileID: 1989647707}
+  audioMixer: {fileID: 24100000, guid: 19e4a2f9153a9e348bbd5415a9a443fa, type: 2}
+  exposedParameter: MasterVolume
 --- !u!1 &1716890690
 GameObject:
   m_ObjectHideFlags: 0
@@ -5009,7 +5026,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1852622949
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5466,7 +5483,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 21.8, y: -0.5}
+  m_AnchoredPosition: {x: 22.68, y: -0.5}
   m_SizeDelta: {x: 34.7, y: 8.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1989647707
@@ -5519,7 +5536,19 @@ MonoBehaviour:
   m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1700452805}
+        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
+        m_MethodName: SetVolume
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2010552419
 GameObject:
   m_ObjectHideFlags: 0
