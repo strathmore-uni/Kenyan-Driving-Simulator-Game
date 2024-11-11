@@ -9,6 +9,7 @@ public class MenuController : MonoBehaviour
 {
     public TMP_Text volumeTextValue = null;
     public Slider volumeSlider = null;
+    public float defaultVolume = 1.0f;
 
     public GameObject confirmationPrompt = null;
 
@@ -27,6 +28,17 @@ public class MenuController : MonoBehaviour
     {
         PlayerPrefs.SetFloat("mastervolume", AudioListener.volume);
         StartCoroutine(ConfirmationBox());
+    }
+    
+    public void ResetButton(string MenuType)
+    {
+        if (MenuType == "Audio")
+        {
+            AudioListener.volume = defaultVolume;
+            volumeSlider.value = defaultVolume;
+            volumeTextValue.text = defaultVolume.ToString("0.0");
+            VolumeApply();
+        }
     }
 
     public IEnumerator ConfirmationBox()
