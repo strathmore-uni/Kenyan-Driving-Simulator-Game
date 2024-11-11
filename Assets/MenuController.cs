@@ -2,17 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using unityEngine.SceneManagement;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class MenuController : MonoBehaviour
 {
-   
-     public TMP_TextElement volumeTextValue = null;
-     public Slider volumeSlider = null;
+    public TMP_Text volumeTextValue = null;
+    public Slider volumeSlider = null;
 
-     public GameObject confirmationPrompt = null;
-
+    public GameObject confirmationPrompt = null;
 
     public void ExitButton()
     {
@@ -27,7 +25,7 @@ public class MenuController : MonoBehaviour
 
     public void VolumeApply()
     {
-        PlayPrefs.SetFloat("mastervolume", AudioListener.volume);
+        PlayerPrefs.SetFloat("mastervolume", AudioListener.volume);
         StartCoroutine(ConfirmationBox());
     }
 
