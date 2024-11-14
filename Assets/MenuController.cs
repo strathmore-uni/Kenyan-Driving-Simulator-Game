@@ -16,16 +16,9 @@ public class MenuController : MonoBehaviour
     public int defaultSen = 4;
     public int mainControllerSen = 4;
 
-    public Slider brightnessSlider = null;
-    public TMP_Text brightnessTextValue = null;
-    public float defaultBrightness = 1;
-
-    public TMP_Dropdown qualityDropdown; // Fixed variable name
-    public Toggle fullScreenToggle; // Added Toggle for fullscreen
+    public TMP_Dropdown qualityDropdown; // Dropdown for quality settings
 
     private int _qualityLevel;
-    private bool _isFullScreen;
-    private float _brightnessLevel;
 
     public TMP_Dropdown resolutionDropdown;
     private Resolution[] resolutions;
@@ -89,17 +82,6 @@ public class MenuController : MonoBehaviour
         StartCoroutine(ConfirmationBox());
     }
 
-    public void SetBrightness(float brightness)
-    {
-        _brightnessLevel = brightness;
-        brightnessTextValue.text = brightness.ToString("0.0");
-    }
-
-    public void SetFullScreen(bool isFullscreen)
-    {
-        _isFullScreen = isFullscreen;
-    }
-
     public void SetQuality(int qualityIndex)
     {
         _qualityLevel = qualityIndex;
@@ -107,13 +89,21 @@ public class MenuController : MonoBehaviour
 
     public void GraphicsApply()
     {
-        PlayerPrefs.SetFloat("masterBrightness", _brightnessLevel);
-
         PlayerPrefs.SetInt("masterQuality", _qualityLevel);
         QualitySettings.SetQualityLevel(_qualityLevel);
 
-        PlayerPrefs.SetInt("masterFullscreen", (_isFullScreen ? 1 : 0));
-        Screen.fullScreen = _isFullScreen;
+        
+            // Apply quality settings
+            int selectedQualityLevel = qualityDropdown.value;
+            QualitySettings.SetQualityLevel(selectedQualityLevel);
+            Debug.Log($"Applied Quality Level: {selectedQualityLevel}");
+
+            // Apply resolution settings
+            int selectedResolutionIndex = resolutionDropdown.value;
+            SetResolution(selectedResolutionIndex);
+            Debug.Log($"Applied Resolution: {resolutions[selectedResolutionIndex].width}x{resolutions[selectedResolutionIndex].height}");
+        
+
 
         StartCoroutine(ConfirmationBox());
     }
@@ -136,14 +126,8 @@ public class MenuController : MonoBehaviour
         }
         if (MenuType == "Graphics")
         {
-            brightnessTextValue.text = defaultBrightness.ToString("0.0");
-            brightnessSlider.value = defaultBrightness;
-
             qualityDropdown.value = 1;
-            QualitySettings.SetQualityLevel(1); // Fixed typo
-
-            fullScreenToggle.isOn = false;
-            Screen.fullScreen = false;
+            QualitySettings.SetQualityLevel(1);
 
             resolutionDropdown.value = resolutionDropdown.options.Count - 1; // Set to the last resolution option
             GraphicsApply();
