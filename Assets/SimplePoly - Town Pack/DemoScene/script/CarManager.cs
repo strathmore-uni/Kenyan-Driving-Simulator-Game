@@ -50,7 +50,7 @@ namespace MyNamespace
         public AnimationCurve SteeringCurve;
 
         // Steering sensitivity
-        public float steeringSensitivity = 0.5f;
+        //public float steeringSensitivity = 0.5f;
 
         // Slip angle for braking  
         public float slipAngle;
@@ -97,6 +97,13 @@ namespace MyNamespace
         public float reverseSpeed = 5.0f; // adjust this value to your liking
         public float forwardSpeed = 20.0f; // adjust this value to your liking
         public float brakingForce = 10.0f; // adjust this value to your liking
+
+        public float steeringSensitivity = 1.0f; // Steering sensitivity
+        public float accelerationSensitivity = 1.0f; // Pedal sensitivity
+
+        private float steeringInput;
+        private float accelerationInput;
+        public float accelerationPower = 500f;
 
         public Button parkButton;
         public Button neutralButton;
@@ -203,15 +210,30 @@ namespace MyNamespace
 
             // Apply the steering to the car
             ApplySteering(currentSteerAngle);
+
+            // Get the player's input for steering and pedals (assuming input axes for steering and acceleration)
+            steeringInput = SimpleInput.GetAxis("Horizontal"); // Typically the 'A/D' or arrow keys
+            accelerationInput = SimpleInput.GetAxis("Vertical"); // Typically the 'W/S' or up/down arrows
+
+            // Adjust the steering based on the sensitivity
+            float steeringAngle = steeringInput * steeringSensitivity;
+            float acceleration = accelerationInput * accelerationSensitivity;
+
+            // Apply these values to the car's steering and acceleration logic
+       
+            ApplyAcceleration(acceleration);
         }
 
+        
+
+      
         void Move(float direction)
         {
             // Example of moving the car
             transform.Translate(Vector3.forward * speed * direction * Time.deltaTime);
         }
 
-        void ApplySteering(float steerAngle)
+        public void ApplySteering(float steerAngle)
         {
             // Apply the steering to the car
             float adjustedSteerAngle = steerAngle * SteeringCurve.Evaluate(speedClamped);
@@ -277,6 +299,13 @@ namespace MyNamespace
                     return; // Exit early to prevent force application
                 }
 
+            }
+        }
+        public void ApplyAcceleration(float customAcceleration)
+        {
+            if (RB.velocity.magnitude < maxSpeed)
+            {
+                RB.AddForce(transform.forward * customAcceleration * Time.deltaTime, ForceMode.Acceleration);
             }
         }
 
