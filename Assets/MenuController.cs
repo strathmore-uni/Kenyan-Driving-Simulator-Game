@@ -9,7 +9,7 @@ public class MenuController : MonoBehaviour
 {
     public TMP_Text volumeTextValue = null;
     public Slider volumeSlider = null;
-    public float defaultVolume = 1.0f;
+    public float defaultVolume = 0f;
 
     public TMP_Text controllerSenTextValue = null;
     public Slider controllerSenSlider = null;
