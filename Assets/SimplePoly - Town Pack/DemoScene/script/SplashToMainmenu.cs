@@ -8,10 +8,10 @@ public class SplashToMainmenu : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(ToMainMenu());
+        StartCoroutine(ToMainMenu2());
     }
 
-   IEnumerator ToMainMenu()
+   IEnumerator ToMainMenu2()
    {
         yield return new WaitForSeconds(4);
         SceneManager.LoadScene(1);
