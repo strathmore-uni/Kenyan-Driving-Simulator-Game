@@ -4,95 +4,64 @@ using TMPro;
 
 public class SoundSettings : MonoBehaviour
 {
-    public AudioSource backgroundMusic; // Background music audio source
-    public AudioSource[] soundEffects; // Array of sound effects audio sources
+    public AudioSource backgroundMusic; // Background music source
+    public AudioSource[] soundEffects; // Array of sound effects
 
-    // UI sliders and mute button
-    public Slider musicVolumeSlider;
-    public Slider soundEffectsVolumeSlider;
-    public Button muteButton;
-    public TextMeshProUGUI muteButtonText;
+    public Slider musicVolumeSlider; // Slider for music volume
+    public Slider soundEffectsVolumeSlider; // Slider for SFX volume
 
-    // Volume display texts
-    public TextMeshProUGUI musicVolumeText; // Display text for music volume
-    public TextMeshProUGUI soundEffectsVolumeText; // Display text for sound effects volume
+    public TextMeshProUGUI musicVolumeText; // Text for music volume
+    public TextMeshProUGUI soundEffectsVolumeText; // Text for SFX volume
 
-    private bool isMuted = false;
+    private int musicVolume; // Integer to store music volume as percentage
+    private int soundEffectsVolume; // Integer to store SFX volume as percentage
 
     void Start()
     {
-        // Set the sliders to match the current volume
+        // Initialize music volume
+        musicVolume = Mathf.RoundToInt(backgroundMusic.volume * 100); // Convert initial volume to percentage
         musicVolumeSlider.value = backgroundMusic.volume;
+        UpdateMusicVolumeText();
 
-        // Set the sound effects volume slider to an average of all sound effects
+        // Initialize SFX volume
         float avgSFXVolume = 0f;
         foreach (var effect in soundEffects)
         {
             avgSFXVolume += effect.volume;
         }
-        soundEffectsVolumeSlider.value = (soundEffects.Length > 0) ? avgSFXVolume / soundEffects.Length : 0f;
+        soundEffectsVolume = Mathf.RoundToInt((soundEffects.Length > 0 ? avgSFXVolume / soundEffects.Length : 0f) * 100);
+        soundEffectsVolumeSlider.value = soundEffects.Length > 0 ? avgSFXVolume / soundEffects.Length : 0f;
+        UpdateSoundEffectsVolumeText();
 
-        // Add listeners for mute button and volume sliders
-        muteButton.onClick.AddListener(ToggleMute);
+        // Add listeners to sliders
         musicVolumeSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
         soundEffectsVolumeSlider.onValueChanged.AddListener(OnSoundEffectsVolumeChanged);
-
-        // Set the initial mute button text and update volume display text
-        UpdateMuteButtonText();
-        UpdateVolumeTexts();
     }
 
-    // Method to adjust background music volume
     public void OnMusicVolumeChanged(float value)
     {
-        if (!isMuted)
-        {
-            backgroundMusic.volume = value;
-            musicVolumeText.text = $"Music Volume: {(int)(value * 100)}%";
-        }
+        musicVolume = Mathf.RoundToInt(value * 100); // Convert slider value to integer percentage
+        backgroundMusic.volume = value; // Set the actual volume
+        UpdateMusicVolumeText();
     }
 
-    // Method to adjust sound effects volume
     public void OnSoundEffectsVolumeChanged(float value)
     {
-        if (!isMuted)
-        {
-            foreach (var effect in soundEffects)
-            {
-                effect.volume = value;
-            }
-            soundEffectsVolumeText.text = $"SFX Volume: {(int)(value * 100)}%";
-        }
-    }
-
-    // Method to mute/unmute background music and sound effects
-    public void ToggleMute()
-    {
-        isMuted = !isMuted;
-
-        // Mute or unmute background music
-        backgroundMusic.mute = isMuted;
-
-        // Mute or unmute all sound effects
+        soundEffectsVolume = Mathf.RoundToInt(value * 100); // Convert slider value to integer percentage
         foreach (var effect in soundEffects)
         {
-            effect.mute = isMuted;
+            effect.volume = value; // Update volume for each SFX
         }
-
-        // Update the button text to reflect the mute state
-        UpdateMuteButtonText();
+        UpdateSoundEffectsVolumeText();
     }
 
-    // Update the mute button's text
-    private void UpdateMuteButtonText()
+    private void UpdateMusicVolumeText()
     {
-        muteButtonText.text = isMuted ? "Unmute" : "Mute";
+        musicVolumeText.text = $"{musicVolume}%"; // Update music volume text to show only the percentage
     }
 
-    // Method to initialize volume texts on start
-    private void UpdateVolumeTexts()
+    private void UpdateSoundEffectsVolumeText()
     {
-        musicVolumeText.text = $"Music Volume: {(int)(musicVolumeSlider.value * 100)}%";
-        soundEffectsVolumeText.text = $"SFX Volume: {(int)(soundEffectsVolumeSlider.value * 100)}%";
+        soundEffectsVolumeText.text = $"{soundEffectsVolume}%"; // Update SFX volume text to show only the percentage
     }
 }
