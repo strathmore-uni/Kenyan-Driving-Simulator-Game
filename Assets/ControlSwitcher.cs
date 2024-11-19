@@ -1,7 +1,7 @@
 using UnityEngine;
-using UnityEngine.UI; // To use UI components like Dropdown
+using TMPro; // For TMP_Dropdown (TextMeshPro)
 
-public class ControlModeSwitcher : MonoBehaviour
+public class ControlModeManager : MonoBehaviour
 {
     // Enum for Control Modes
     public enum ControlMode
@@ -16,13 +16,22 @@ public class ControlModeSwitcher : MonoBehaviour
     public static ControlMode gasMode = ControlMode.Touch;
     public static ControlMode brakeMode = ControlMode.Touch;
 
-    // Reference to the dropdown UI element
-    public Dropdown modeDropdown;
+    // Reference to the TMP_Dropdown UI element (TextMeshPro version)
+    public TMP_Dropdown modeDropdown;
 
     void Start()
     {
+        // Load saved control settings
+        LoadControlSettings();
+
+        // Set dropdown to the current saved value
+        modeDropdown.value = (int)steeringMode;
+
         // Add listener to handle dropdown value change
         modeDropdown.onValueChanged.AddListener(OnModeChanged);
+
+        // Optionally, you can auto-apply controls on start for gameplay if needed
+        ApplyControlSettings();
     }
 
     // This method is called when the dropdown value changes
@@ -36,14 +45,37 @@ public class ControlModeSwitcher : MonoBehaviour
         gasMode = selectedMode;
         brakeMode = selectedMode;
 
+        // Save the updated settings to PlayerPrefs
+        SaveControlSettings();
+
         // Apply the control settings after change
         ApplyControlSettings();
     }
 
-    // Method to apply the control settings
+    // Save control settings to PlayerPrefs
+    void SaveControlSettings()
+    {
+        PlayerPrefs.SetInt("SteeringMode", (int)steeringMode);
+        PlayerPrefs.SetInt("GasMode", (int)gasMode);
+        PlayerPrefs.SetInt("BrakeMode", (int)brakeMode);
+        PlayerPrefs.Save();
+    }
+
+    // Load control settings from PlayerPrefs
+    void LoadControlSettings()
+    {
+        if (PlayerPrefs.HasKey("SteeringMode"))
+        {
+            steeringMode = (ControlMode)PlayerPrefs.GetInt("SteeringMode");
+            gasMode = (ControlMode)PlayerPrefs.GetInt("GasMode");
+            brakeMode = (ControlMode)PlayerPrefs.GetInt("BrakeMode");
+        }
+    }
+
+    // Apply the control settings in gameplay
     void ApplyControlSettings()
     {
-        // Here, you can apply logic to enable the appropriate control based on the selected mode
+        // Here, you can implement logic to apply the selected mode for controls
         switch (steeringMode)
         {
             case ControlMode.Touch:
@@ -60,20 +92,20 @@ public class ControlModeSwitcher : MonoBehaviour
         switch (gasMode)
         {
             case ControlMode.Touch:
-                // Enable Touch-based gas pedal control
+                // Enable Touch-based gas pedal
                 break;
             case ControlMode.Joystick:
-                // Enable Joystick-based gas pedal control
+                // Enable Joystick-based gas pedal
                 break;
         }
 
         switch (brakeMode)
         {
             case ControlMode.Touch:
-                // Enable Touch-based brake pedal control
+                // Enable Touch-based brake pedal
                 break;
             case ControlMode.Joystick:
-                // Enable Joystick-based brake pedal control
+                // Enable Joystick-based brake pedal
                 break;
         }
     }
