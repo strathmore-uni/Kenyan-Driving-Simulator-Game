@@ -17,8 +17,6 @@ public class SoundSettings : MonoBehaviour
     public TextMeshProUGUI soundEffectsVolumeText; // Text for SFX volume
 
     private bool isMuted = false; // Tracks mute state
-    private float previousMusicVolume; // Stores music volume before muting
-    private float previousSFXVolume; // Stores SFX volume before muting
 
     void Start()
     {
@@ -69,30 +67,34 @@ public class SoundSettings : MonoBehaviour
 
         if (isMuted)
         {
-            // Save current volumes before muting
-            previousMusicVolume = musicVolumeSlider.value;
-            previousSFXVolume = soundEffectsVolumeSlider.value;
+            // Mute background music and sound effects by setting their volume to 0
+            if (backgroundMusic != null)
+            {
+                backgroundMusic.volume = 0f;
+            }
 
-            // Mute background music and sound effects
-            backgroundMusic.mute = true;
             foreach (var effect in soundEffects)
             {
-                effect.mute = true;
+                if (effect != null)
+                {
+                    effect.volume = 0f;
+                }
             }
         }
         else
         {
-            // Unmute and restore previous volumes
-            backgroundMusic.mute = false;
-            foreach (var effect in soundEffects)
+            // Restore volumes to slider values
+            if (backgroundMusic != null)
             {
-                effect.mute = false;
+                backgroundMusic.volume = musicVolumeSlider.value;
             }
 
-            backgroundMusic.volume = previousMusicVolume;
             foreach (var effect in soundEffects)
             {
-                effect.volume = previousSFXVolume;
+                if (effect != null)
+                {
+                    effect.volume = soundEffectsVolumeSlider.value;
+                }
             }
         }
 
