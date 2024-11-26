@@ -104,14 +104,16 @@ namespace MyNamespace
         private float steeringInput;
         private float accelerationInput;
         public float accelerationPower = 500f;
+        public float reverseForce = 3000f; // Force applied while reversing
+
 
         public Button parkButton;
         public Button neutralButton;
         public Button driveButton;
         public Button reverseButton;
 
-        private Light brakeLight; 
-        private Light reverseLight; 
+        private Light brakeLight;
+        private Light reverseLight;
 
         void Start()
         {
@@ -158,8 +160,9 @@ namespace MyNamespace
         {
             gearState = GearState.Reverse;
             currentGear = -1;
-            /*reverseLight.enabled = true;*/ // Ensure reverse light is on when in reverse
+            reverseLight.enabled = true; // Enable reverse light when in reverse
         }
+
 
         public void Steer(float steerAngle)
         {
@@ -220,13 +223,13 @@ namespace MyNamespace
             float acceleration = accelerationInput * accelerationSensitivity;
 
             // Apply these values to the car's steering and acceleration logic
-       
+
             ApplyAcceleration(acceleration);
         }
 
-        
 
-      
+
+
         void Move(float direction)
         {
             // Example of moving the car
@@ -268,18 +271,17 @@ namespace MyNamespace
                 return; // Exit FixedUpdate early
             }
 
-           if (gearState == GearState.Drive && fuelInput > 0.0f)
-           {
-                Accelerate(fuelInput);
-           }
-    
-            // Reverse mode
-            if (gearState == GearState.Reverse && fuelInput < 0.0f)
+            if (gearState == GearState.Drive && fuelInput > 0.0f)
             {
-
-                Reverse(fuelInput);
+                Accelerate(fuelInput);
             }
-    
+
+            // Reverse movement
+            if (gearState == GearState.Reverse && fuelInput > 0) // Ensure positive input for reversing
+            {
+                RB.AddForce(-transform.forward * fuelInput * reverseForce, ForceMode.Acceleration);
+            }
+
 
             else
             {
@@ -338,19 +340,10 @@ namespace MyNamespace
 
         public void Reverse(float input)
         {
-            if (gearState == GearState.Reverse)
-            {
-                // Apply reverse force
-                RB.AddForce(-RB.velocity.normalized * accelerationForce * input, ForceMode.Acceleration);
-
-                // Limit the reverse speed
-                if (RB.velocity.magnitude > reverseSpeed)
-                {
-                    RB.velocity = Vector3.ClampMagnitude(RB.velocity, reverseSpeed);
-                }
-            }
+            if (RB.velocity.magnitude < reverseSpeed)
+                RB.AddForce(-transform.forward * accelerationForce * Mathf.Abs(input), ForceMode.Acceleration);
         }
-            void Neutral()
+        void Neutral()
         {
             // Optionally, apply friction or damping to stop the car
             RB.velocity = Vector3.zero;
@@ -389,14 +382,7 @@ namespace MyNamespace
 
 
 
-                //// Check for double click
-                //float currentTime = Time.time;
-                //if (currentTime - lastBrakePressTime < doubleClickTime)
-                //{
-                //    // Double click detected, apply emergency brake
-                //    FuelInput = -1f; // Set FuelInput to maximum braking value
-                //}
-                //lastBrakePressTime = currentTime;
+                
             }
             if (brakePedal.isPressed)
             {
@@ -416,27 +402,7 @@ namespace MyNamespace
 
             float MoveDir = Vector3.Dot(transform.forward, RB.velocity);
 
-            // Add gear shifting logic
-            //if (parkButton.isPressed) // Park gear
-            //{
-            //    gearState = GearState.Park;
-            //    currentGear = 0;
-            //}
-            //else if (neutralButton.isPressed) // Neutral gear
-            //{
-            //    gearState = GearState.Neutral;
-            //    currentGear = 0;
-            //}
-            //else if (driveButton.isPressed) // Drive gear
-            //{
-            //    gearState = GearState.Drive;
-            //    currentGear = 1;
-            //}
-            //else if (reverseButton.isPressed) // Reverse gear
-            //{
-            //    gearState = GearState.Reverse;
-            //    currentGear = -1;
-            //}
+            
 
             if (gearState == GearState.Neutral)
             {
