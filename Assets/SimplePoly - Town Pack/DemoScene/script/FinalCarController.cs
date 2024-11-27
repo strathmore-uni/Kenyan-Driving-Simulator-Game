@@ -25,9 +25,10 @@ public class CarController : MonoBehaviour
     public TMP_Text gearIndicatorText; // To display gear
     public Button buttonP, buttonN, buttonR, buttonD; // Buttons for gear shift
     public Button gasPedalButton, brakePedalButton; // Gas and Brake pedals
+    public float currentSpeed;
 
     // Variables to track car status
-    private float currentSpeed = 0f;
+
     private string currentGear = "P"; // Default gear is Park
     private float steeringInput = 0f;
 
